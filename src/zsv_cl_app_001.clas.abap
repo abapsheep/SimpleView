@@ -276,7 +276,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
     DATA lo_struct          TYPE REF TO cl_abap_structdescr.
     DATA lo_tab             TYPE REF TO cl_abap_tabledescr.
-    DATA selkz              TYPE boolean.
+    DATA selkz              TYPE abap_bool.
 
     FIELD-SYMBOLS:  <table> TYPE STANDARD TABLE.
 
