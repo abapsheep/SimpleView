@@ -241,23 +241,23 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
   METHOD data_to_table.
 
-field-SYMBOL <row> type any.
+    FIELD-SYMBOLS <row> TYPE any.
 
     LOOP AT mt_dfies INTO DATA(dfies).
 
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE row TO FIELD-SYMBOL(<value_tab>).
-      ASSIGN ms_table_row->* to <row>.
+      ASSIGN ms_table_row->* TO <row>.
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_struc>).
 
       IF <value_tab> IS ASSIGNED AND <value_struc> IS ASSIGNED.
 
-       IF <value_tab> ne <value_struc>.
+        IF <value_tab> NE <value_struc>.
 
-        <value_tab> = <value_struc>.
+          <value_tab> = <value_struc>.
 
-        client->view_model_update( ).
+          client->view_model_update( ).
 
-       endif.
+        ENDIF.
 
       ENDIF.
 
@@ -318,7 +318,7 @@ field-SYMBOL <row> type any.
 
     set_row_id( ).
 
-
+   ASSIGN mt_table->* to <table>.
    Create data mt_table_tmp like mt_table->*.
    mt_table_tmp->* = mt_table->*.
 
@@ -543,8 +543,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
   METHOD render_popup.
 
     DATA index TYPE int4.
-    field-SYMBOL <row> type any.
-    field-SYMBOL <fixval> type any.
+    field-SYMBOLs <row> type any.
+    field-SYMBOLs <fixval> type any.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
@@ -672,7 +672,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
 
     FIELD-SYMBOLS <tab> TYPE STANDARD TABLE.
-    FIELD-SYMBOLS <table_row> TYPE any
+    FIELD-SYMBOLS <table_row> TYPE any.
+
     ASSIGN mt_table->* TO <tab>.
 
     READ TABLE <tab> ASSIGNING FIELD-SYMBOL(<row>) INDEX mv_activ_row.
@@ -682,7 +683,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
     LOOP AT mt_dfies INTO DATA(dfies).
 
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_tab>).
-      ASSING ms_table_row->* to <table_row>.
+      ASSIgn ms_table_row->* to <table_row>.
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <table_row> TO FIELD-SYMBOL(<value_struc>).
 
       IF <value_tab> IS ASSIGNED AND <value_struc> IS ASSIGNED.
@@ -770,6 +771,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
   METHOD on_after_f4.
 
+FIELD-SYMBOLS <row> type any.
+
     " Kommen wir aus einer anderen APP
     IF client->get( )-check_on_navigated = abap_true.
 
@@ -781,8 +784,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
             READ TABLE mt_dfies INTO DATA(dfies) WITH KEY fieldname = mv_f4_fieldname.
 
-
-            ASSIGN COMPONENT dfies-fieldname OF STRUCTURE ms_table_row->* TO FIELD-SYMBOL(<value_struc>).
+            ASSIGN ms_table_row->* to <row>.
+            ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_struc>).
 
             IF <value_struc> IS ASSIGNED.
               <value_struc> = app->mv_return_value.
@@ -880,13 +883,16 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
   METHOD popup_f4.
 
+FIELD-SYMBOLS <row> type any.
+
     DATA(lt_arg) = client->get( )-t_event_arg.
 
     mv_f4_fieldname = VALUE string( lt_arg[ 1 ] ).
 
     READ TABLE mt_dfies INTO DATA(dfies) WITH KEY fieldname = mv_f4_fieldname.
 
-    ASSIGN COMPONENT dfies-fieldname OF STRUCTURE ms_table_row->* TO FIELD-SYMBOL(<value_struc>).
+    ASSIGN ms_table_row->* to <row>.
+    ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_struc>).
 
     client->nav_app_call( ZSV_cl_app_004=>factory(
         i_table = mv_table
@@ -954,9 +960,11 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
   METHOD get_fixval.
 
+
     DATA comp        TYPE cl_abap_structdescr=>component_table.
     DATA structdescr TYPE REF TO cl_abap_structdescr.
     DATA lt_fixval   TYPE fixvalues.
+FIELD-SYMBOLS <s_fixval> type any.
 
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
@@ -970,7 +978,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
     LOOP AT mt_dfies REFERENCE INTO dfies.
 
-      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_fixval->* TO FIELD-SYMBOL(<fixval>).
+      ASSIGN ms_fixval->* to <s_fixval>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <s_fixval> TO FIELD-SYMBOL(<fixval>).
 
       CHECK <fixval> IS ASSIGNED.
 
