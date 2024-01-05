@@ -932,10 +932,21 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
   METHOD get_fixval.
 
+ types:
+    begin of fixvalue,
+    low        type domvalue_l,
+    high       type domvalue_h,
+    option     type ddfvoption,
+    ddlanguage type ddlanguage,
+    ddtext     type val_text,
+  end of fixvalue .
+  types:
+    fixvalues type standard table of fixvalue with default key .
+
 
     DATA comp        TYPE cl_abap_structdescr=>component_table.
     DATA structdescr TYPE REF TO cl_abap_structdescr.
-    DATA lt_fixval   TYPE cl_abap_elemdescr=>fixvalues.
+    DATA lt_fixval   TYPE fixvalues.
 
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
