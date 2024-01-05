@@ -114,14 +114,16 @@ CLASS ZSV_cl_app_004 IMPLEMENTATION.
   METHOD get_where_tab.
 
     DATA t_selopt TYPE rsds_frange_t.
+    FIELD-SYMBOLS <struc> type any.
 
     " Gehe über alle Comps
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
       CHECK dfies->keyflag = abap_true OR dfies->fieldname = mv_check_tab_field.
 
-      ASSIGN COMPONENT dfies->fieldname of STRUCTURE ms_data_row->* TO FIELD-SYMBOL(<val>).
-
+      assign ms_data_row->* to <struc>.
+      ASSIGN COMPONENT dfies->fieldname of STRUCTURE <struc> TO FIELD-SYMBOL(<val>).
+      
       CHECK <val> IS NOT INITIAL.
       t_selopt = VALUE #( BASE t_selopt ( fieldname = dfies->fieldname selopt_t = VALUE #( ( sign = 'I' option = 'CP' low = `*` && <val> && `*`  high = '' ) ) ) ).
 
