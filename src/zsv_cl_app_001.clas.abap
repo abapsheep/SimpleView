@@ -241,10 +241,13 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
   METHOD data_to_table.
 
+field-SYMBOL <row> type any.
+
     LOOP AT mt_dfies INTO DATA(dfies).
 
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE row TO FIELD-SYMBOL(<value_tab>).
-      ASSIGN COMPONENT dfies-fieldname OF STRUCTURE ms_table_row->* TO FIELD-SYMBOL(<value_struc>).
+      ASSIGN ms_table_row->* to <row>.
+      ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_struc>).
 
       IF <value_tab> IS ASSIGNED AND <value_struc> IS ASSIGNED.
 
@@ -540,6 +543,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
   METHOD render_popup.
 
     DATA index TYPE int4.
+    field-SYMBOL <row> type any.
+    field-SYMBOL <fixval> type any.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
@@ -562,14 +567,16 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
       enabled = abap_false.
       endif.
 
-      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_table_row->* TO FIELD-SYMBOL(<val>).
+      assign ms_table_row->* to <row>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<val>).
       IF <val> IS NOT ASSIGNED.
         CONTINUE.
       ENDIF.
 
       simple_form->label( text = get_txt( CONV #( dfies->rollname ) ) ).
 
-      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_fixval->* TO FIELD-SYMBOL(<struc>).
+      assign ms_fixval->* to <fixval>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <fixval> TO FIELD-SYMBOL(<struc>).
       CHECK <struc> IS ASSIGNED.
 
 
@@ -665,6 +672,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
 
     FIELD-SYMBOLS <tab> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <table_row> TYPE any
     ASSIGN mt_table->* TO <tab>.
 
     READ TABLE <tab> ASSIGNING FIELD-SYMBOL(<row>) INDEX mv_activ_row.
@@ -674,7 +682,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
     LOOP AT mt_dfies INTO DATA(dfies).
 
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_tab>).
-      ASSIGN COMPONENT dfies-fieldname OF STRUCTURE ms_table_row->* TO FIELD-SYMBOL(<value_struc>).
+      ASSING ms_table_row->* to <table_row>.
+      ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <table_row> TO FIELD-SYMBOL(<value_struc>).
 
       IF <value_tab> IS ASSIGNED AND <value_struc> IS ASSIGNED.
         <value_struc> = <value_tab>.
@@ -772,6 +781,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
             READ TABLE mt_dfies INTO DATA(dfies) WITH KEY fieldname = mv_f4_fieldname.
 
+            
             ASSIGN COMPONENT dfies-fieldname OF STRUCTURE ms_table_row->* TO FIELD-SYMBOL(<value_struc>).
 
             IF <value_struc> IS ASSIGNED.
