@@ -31,7 +31,7 @@ PUBLIC SECTION.
 
   DATA mt_t004 TYPE ty_t_t004.
 
-  DATA mv_descr  TYPE char50.
+  DATA mv_descr  TYPE ZSV_descr.
   DATA mv_layout TYPE slis_vari.
   DATA mv_def    TYPE abap_bool.
   DATA mv_usr    TYPE abap_bool.
