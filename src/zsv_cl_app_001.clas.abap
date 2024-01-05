@@ -294,6 +294,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
     DATA selkz              TYPE abap_bool.
 
     FIELD-SYMBOLS:  <table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS:  <table2> TYPE STANDARD TABLE.
 
     DATA(t_comp) = get_comp( ).
 
@@ -318,9 +319,11 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
     set_row_id( ).
 
-   ASSIGN mt_table->* to <table>.
-   Create data mt_table_tmp like mt_table->*.
-   mt_table_tmp->* = mt_table->*.
+    ASSIGN mt_table->* TO <table>.
+    CREATE DATA mt_table_tmp LIKE mt_table->*.
+    ASSIGN mt_table_tmp->* TO <table2>.
+    <table2> = <table>.
+
 
   ENDMETHOD.
 
