@@ -781,7 +781,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
             READ TABLE mt_dfies INTO DATA(dfies) WITH KEY fieldname = mv_f4_fieldname.
 
-            
+
             ASSIGN COMPONENT dfies-fieldname OF STRUCTURE ms_table_row->* TO FIELD-SYMBOL(<value_struc>).
 
             IF <value_struc> IS ASSIGNED.

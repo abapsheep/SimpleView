@@ -123,7 +123,7 @@ CLASS ZSV_cl_app_004 IMPLEMENTATION.
 
       assign ms_data_row->* to <struc>.
       ASSIGN COMPONENT dfies->fieldname of STRUCTURE <struc> TO FIELD-SYMBOL(<val>).
-      
+
       CHECK <val> IS NOT INITIAL.
       t_selopt = VALUE #( BASE t_selopt ( fieldname = dfies->fieldname selopt_t = VALUE #( ( sign = 'I' option = 'CP' low = `*` && <val> && `*`  high = '' ) ) ) ).
 
@@ -198,6 +198,7 @@ ENDMETHOD.
   METHOD render_view.
 
     FIELD-SYMBOLS <struc> TYPE ZSV_cl_app_009=>ty_s_layout.
+    FIELD-SYMBOLS <row> TYPE any.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
@@ -215,9 +216,10 @@ ENDMETHOD.
       CHECK dfies->fieldname NE `MANDT`.
       CHECK dfies->keyflag = abap_true OR dfies->fieldname = mv_check_tab_field.
 
-      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_data_row->* TO FIELD-SYMBOL(<val>).
+      ASSIGN ms_data_row->* TO <row>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<val>).
 
-      simple_form->label( text = get_txt(  CONV #( dfies->rollname ) ) ).
+      simple_form->label( text = get_txt( CONV #( dfies->rollname ) ) ).
 
       simple_form->input( value         = client->_bind_edit( <val> )
                           showvaluehelp = abap_false
@@ -245,7 +247,7 @@ ENDMETHOD.
 
 
     headder = ZSV_cl_app_009=>render_layout_function( xml    = headder
-                                                             client = client ).
+                                                      client = client ).
 
 
     DATA(columns) = table->columns( ).
@@ -407,13 +409,15 @@ ENDMETHOD.
 
   METHOD prefill_inputs.
 
+FIELD-SYMBOLS <row> type any.
 
     " Gehe über alle Comps
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
       CHECK dfies->keyflag = abap_true OR dfies->fieldname = mv_check_tab_field.
 
-      ASSIGN COMPONENT dfies->fieldname of STRUCTURE ms_data_row->* TO FIELD-SYMBOL(<val>).
+      ASSIGN ms_data_row->* to <row>.
+      ASSIGN COMPONENT dfies->fieldname of STRUCTURE <row> TO FIELD-SYMBOL(<val>).
       check <val> is ASSIGNED.
 
       If dfies->fieldname = mv_check_tab_field.
