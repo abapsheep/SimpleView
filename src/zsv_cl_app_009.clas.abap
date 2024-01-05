@@ -31,7 +31,7 @@ PUBLIC SECTION.
 
   DATA mt_t004 TYPE ty_t_t004.
 
-  DATA mv_descr  TYPE ZSV_descr.
+  DATA mv_descr  TYPE char50.
   DATA mv_layout TYPE slis_vari.
   DATA mv_def    TYPE abap_bool.
   DATA mv_usr    TYPE abap_bool.
@@ -619,6 +619,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
   ENDMETHOD.
 
+
   METHOD render_delete.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
@@ -658,6 +659,8 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
     client->popup_display( popup->stringify( ) ).
 
   ENDMETHOD.
+
+
   METHOD render_open.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
@@ -925,5 +928,4 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
     ENDCASE.
 
   ENDMETHOD.
-
 ENDCLASS.

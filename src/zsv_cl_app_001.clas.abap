@@ -1,4 +1,3 @@
-"!
 class ZSV_CL_APP_001 definition
   public
   create public .
@@ -316,7 +315,6 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
     mt_dfies    = ZSV_cl_object_hlper=>get_dfies_of_table( mv_table ).
 
   ENDMETHOD.
-
 
 
   METHOD on_event.
@@ -883,6 +881,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
   ENDMETHOD.
 
+
   METHOD on_event_layout.
 
     client = ZSV_cl_app_009=>on_event_layout(
@@ -960,5 +959,4 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
     ENDLOOP.
 
   ENDMETHOD.
-
 ENDCLASS.
