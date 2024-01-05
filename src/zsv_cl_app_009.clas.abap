@@ -8,6 +8,17 @@ PUBLIC SECTION.
   INTERFACES if_serializable_object .
   INTERFACES z2ui5_if_app .
 
+ types:
+    begin of fixvalue,
+    low        type domvalue_l,
+    high       type domvalue_h,
+    option     type ddfvoption,
+    ddlanguage type ddlanguage,
+    ddtext     type val_text,
+  end of fixvalue .
+  types:
+    fixvalues type standard table of fixvalue with default key .
+
   TYPES: ty_s_layout TYPE ZSV_t005,
          ty_t_layout type STANDARD TABLE OF ty_s_layout with EMPTY KEY.
   TYPES: ty_s_header TYPE ZSV_t004.
@@ -82,8 +93,8 @@ PROTECTED SECTION.
   DATA client        TYPE REF TO z2ui5_if_client.
   DATA mv_init       TYPE abap_bool.
 
-  DATA mt_halign     TYPE cl_abap_elemdescr=>fixvalues .
-  DATA mt_importance TYPE cl_abap_elemdescr=>fixvalues .
+  DATA mt_halign     TYPE fixvalues.
+  DATA mt_importance TYPE fixvalues.
 
   METHODS on_init.
   METHODS render_edit.
@@ -102,7 +113,7 @@ PROTECTED SECTION.
     IMPORTING
       rollname      TYPE string
     RETURNING
-      VALUE(result) TYPE cl_abap_elemdescr=>fixvalues .
+      VALUE(result) TYPE fixvalues .
 
   METHODS render_save.
 

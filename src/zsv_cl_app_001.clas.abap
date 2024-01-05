@@ -29,6 +29,18 @@ public section.
   data MV_ACTIV_ROW    type STRING .
   data MV_EDIT         type ABAP_BOOL .
 
+ types:
+    begin of fixvalue,
+    low        type domvalue_l,
+    high       type domvalue_h,
+    option     type ddfvoption,
+    ddlanguage type ddlanguage,
+    ddtext     type val_text,
+  end of fixvalue.
+  types:
+    fixvalues type standard table of fixvalue with default key.
+
+
   PROTECTED SECTION.
 
 
@@ -931,18 +943,6 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
 
   METHOD get_fixval.
-
- types:
-    begin of fixvalue,
-    low        type domvalue_l,
-    high       type domvalue_h,
-    option     type ddfvoption,
-    ddlanguage type ddlanguage,
-    ddtext     type val_text,
-  end of fixvalue .
-  types:
-    fixvalues type standard table of fixvalue with default key .
-
 
     DATA comp        TYPE cl_abap_structdescr=>component_table.
     DATA structdescr TYPE REF TO cl_abap_structdescr.
