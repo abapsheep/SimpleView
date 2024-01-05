@@ -5,6 +5,17 @@ CLASS ZSV_cl_object_hlper DEFINITION
 
   PUBLIC SECTION.
 
+ types:
+    begin of fixvalue,
+    low        type domvalue_l,
+    high       type domvalue_h,
+    option     type ddfvoption,
+    ddlanguage type ddlanguage,
+    ddtext     type val_text,
+  end of fixvalue .
+  types:
+    fixvalues type standard table of fixvalue with default key .
+
     CLASS-METHODS get_comp_of_table
       IMPORTING !table        TYPE string
       RETURNING VALUE(result) TYPE  cl_abap_structdescr=>component_table.
@@ -20,7 +31,7 @@ CLASS ZSV_cl_object_hlper DEFINITION
     CLASS-METHODS get_fix_values
       IMPORTING
                 !rollname     TYPE string
-      RETURNING VALUE(result) TYPE cl_abap_elemdescr=>fixvalues.
+      RETURNING VALUE(result) TYPE fixvalues.
 PROTECTED SECTION.
   PRIVATE SECTION.
 
