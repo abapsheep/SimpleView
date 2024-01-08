@@ -320,7 +320,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
     set_row_id( ).
 
     ASSIGN mt_table->* TO <table>.
-    CREATE DATA mt_table_tmp LIKE mt_table->*.
+    CREATE DATA mt_table_tmp LIKE <table>.
     ASSIGN mt_table_tmp->* TO <table2>.
     <table2> = <table>.
 
@@ -419,14 +419,18 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
   METHOD render_main.
 
-    FIELD-SYMBOLS <struc> TYPE ZSV_cl_app_009=>ty_s_layout.
+    FIELD-SYMBOLS <struc>  TYPE ZSV_cl_app_009=>ty_s_layout.
+    FIELD-SYMBOLS <table>  type ANY TABLE.
+    FIELD-SYMBOLS <layout> type any.
 
     DATA(page) = Render_main_head( ).
+
+    ASSIGN mt_table->* to <table>.
 
     DATA(table) = page->table(
       growing    = 'true'
       width      = 'auto'
-      items      = client->_bind( val = mt_table->* )
+      items      = client->_bind( val = <table> )
       headerText = zsv_cl_text_helper=>get_dd02t( mv_table )
     ).
 
@@ -449,6 +453,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
+      ASSIGN ms_layout->* to <layout>.
       ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_layout->* TO <struc>.
       CHECK <struc> IS ASSIGNED.
 
