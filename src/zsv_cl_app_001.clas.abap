@@ -1,44 +1,44 @@
-class ZSV_CL_APP_001 definition
-  public
-  create public .
+CLASS zsv_cl_app_001 DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces IF_SERIALIZABLE_OBJECT .
-  interfaces Z2UI5_IF_APP .
-  interfaces ZSV_IF_000 .
+    INTERFACES if_serializable_object .
+    INTERFACES z2ui5_if_app .
+    INTERFACES zsv_if_000 .
 
-  aliases MO_PARENT_VIEW
-    for ZSV_IF_000~MO_PARENT_VIEW.
-  aliases MV_VIEW_DISPLAY
-    for ZSV_IF_000~MV_VIEW_DISPLAY.
-  aliases SET_MAIN_APP_DATA
-    for ZSV_IF_000~set_app_data.
+    ALIASES mo_parent_view
+      FOR zsv_if_000~mo_parent_view.
+    ALIASES mv_view_display
+      FOR zsv_if_000~mv_view_display.
+    ALIASES set_main_app_data
+      FOR zsv_if_000~set_app_data.
 
 
-  DATA ms_layout       TYPE REF TO data.
-  DATA ms_fixval       TYPE REF TO data.
-  data MV_SEARCH_VALUE type STRING .
-  data MT_TABLE        type ref to DATA .
-  data MT_TABLE_TMP    type ref to DATA .
-  data ms_table_row    type ref to DATA .
-  data MT_TABLE_DEL    type ref to DATA .
+    DATA ms_layout       TYPE REF TO data.
+    DATA ms_fixval       TYPE REF TO data.
+    DATA mv_search_value TYPE string .
+    DATA mt_table        TYPE REF TO data .
+    DATA mt_table_tmp    TYPE REF TO data .
+    DATA ms_table_row    TYPE REF TO data .
+    DATA mt_table_del    TYPE REF TO data .
 
-  data MV_TABLE        type STRING .
-  data MT_DFIES        type STANDARD TABLE OF DFIES .
-  data MV_ACTIV_ROW    type STRING .
-  data MV_EDIT         type ABAP_BOOL .
+    DATA mv_table        TYPE string .
+    DATA mt_dfies        TYPE STANDARD TABLE OF dfies .
+    DATA mv_activ_row    TYPE string .
+    DATA mv_edit         TYPE abap_bool .
 
- types:
-    begin of fixvalue,
-    low        type domvalue_l,
-    high       type domvalue_h,
-    option     type ddfvoption,
-    ddlanguage type ddlanguage,
-    ddtext     type val_text,
-  end of fixvalue.
-  types:
-    fixvalues type standard table of fixvalue with default key.
+    TYPES:
+      BEGIN OF fixvalue,
+        low        TYPE domvalue_l,
+        high       TYPE domvalue_h,
+        option     TYPE ddfvoption,
+        ddlanguage TYPE ddlanguage,
+        ddtext     TYPE val_text,
+      END OF fixvalue.
+    TYPES:
+      fixvalues TYPE STANDARD TABLE OF fixvalue WITH DEFAULT KEY.
 
 
   PROTECTED SECTION.
@@ -116,7 +116,7 @@ public section.
 
     METHODS get_fixval.
 
-PRIVATE SECTION.
+  PRIVATE SECTION.
 
 ENDCLASS.
 
@@ -226,7 +226,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
         IF sy-subrc = 0.
           COMMIT WORK AND WAIT.
-          client->message_toast_display( ZSV_CL_TEXT_HELPER=>get_t100(
+          client->message_toast_display( zsv_cl_text_helper=>get_t100(
                                            iv_arbgb = '/SCWM/IT_DEVKIT'
                                            iv_msgnr = '012'   ) ).
         ENDIF.
@@ -419,7 +419,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
   METHOD render_main.
 
-FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
+    FIELD-SYMBOLS <struc> TYPE ZSV_cl_app_009=>ty_s_layout.
 
     DATA(page) = Render_main_head( ).
 
@@ -427,13 +427,13 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
       growing    = 'true'
       width      = 'auto'
       items      = client->_bind( val = mt_table->* )
-      headerText = ZSV_CL_TEXT_HELPER=>get_dd02t( mv_table )
+      headerText = zsv_cl_text_helper=>get_dd02t( mv_table )
     ).
 
 
     DATA(headder) =  table->header_toolbar(
                )->overflow_toolbar(
-                 )->Title(   text = ZSV_CL_TEXT_HELPER=>get_dd02t( mv_table )
+                 )->Title(   text = zsv_cl_text_helper=>get_dd02t( mv_table )
                  )->toolbar_spacer(
                  )->search_field(
                               value  = client->_bind_edit( mv_search_value )
@@ -442,8 +442,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
                               id     = `SEARCH`
                               width  = '17.5rem' ).
 
-    headder = ZSV_CL_APP_009=>render_layout_function( xml = headder
-                                                             client = client ).
+    headder = zsv_cl_app_009=>render_layout_function( xml    = headder
+                                                      client = client ).
 
     DATA(columns) = table->columns( ).
 
@@ -494,7 +494,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
       DATA(view)  = z2ui5_cl_xml_view=>factory( client )."->shell( ).
 
 
-      result = view->page( title          = ZSV_CL_TEXT_HELPER=>get_dd02t( mv_table )
+      result = view->page( title          = zsv_cl_text_helper=>get_dd02t( mv_table )
                            navbuttonpress = client->_event( 'BACK' )
                            shownavbutton  = abap_true
                            class          = 'sapUiContentPadding' ).
@@ -546,8 +546,8 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
   METHOD render_popup.
 
     DATA index TYPE int4.
-    field-SYMBOLs <row> type any.
-    field-SYMBOLs <fixval> type any.
+    FIELD-SYMBOLS <row> TYPE any.
+    FIELD-SYMBOLS <fixval> TYPE any.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
@@ -567,10 +567,10 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
       DATA(enabled) = COND #( WHEN dfies->keyflag = abap_true AND mv_edit = abap_true THEN abap_false ELSE abap_true ).
 
       IF dfies->fieldname = 'MANDT'.
-      enabled = abap_false.
-      endif.
+        enabled = abap_false.
+      ENDIF.
 
-      assign ms_table_row->* to <row>.
+      ASSIGN ms_table_row->* TO <row>.
       ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<val>).
       IF <val> IS NOT ASSIGNED.
         CONTINUE.
@@ -578,7 +578,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
       simple_form->label( text = get_txt( CONV #( dfies->rollname ) ) ).
 
-      assign ms_fixval->* to <fixval>.
+      ASSIGN ms_fixval->* TO <fixval>.
       ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <fixval> TO FIELD-SYMBOL(<struc>).
       CHECK <struc> IS ASSIGNED.
 
@@ -686,7 +686,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
     LOOP AT mt_dfies INTO DATA(dfies).
 
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_tab>).
-      ASSIgn ms_table_row->* to <table_row>.
+      ASSIGN ms_table_row->* TO <table_row>.
       ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <table_row> TO FIELD-SYMBOL(<value_struc>).
 
       IF <value_tab> IS ASSIGNED AND <value_struc> IS ASSIGNED.
@@ -774,7 +774,7 @@ FIELD-SYMBOLS <struc> type ZSV_cl_app_009=>ty_s_layout.
 
   METHOD on_after_f4.
 
-FIELD-SYMBOLS <row> type any.
+    FIELD-SYMBOLS <row> TYPE any.
 
     " Kommen wir aus einer anderen APP
     IF client->get( )-check_on_navigated = abap_true.
@@ -787,7 +787,7 @@ FIELD-SYMBOLS <row> type any.
 
             READ TABLE mt_dfies INTO DATA(dfies) WITH KEY fieldname = mv_f4_fieldname.
 
-            ASSIGN ms_table_row->* to <row>.
+            ASSIGN ms_table_row->* TO <row>.
             ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_struc>).
 
             IF <value_struc> IS ASSIGNED.
@@ -886,7 +886,7 @@ FIELD-SYMBOLS <row> type any.
 
   METHOD popup_f4.
 
-FIELD-SYMBOLS <row> type any.
+    FIELD-SYMBOLS <row> TYPE any.
 
     DATA(lt_arg) = client->get( )-t_event_arg.
 
@@ -894,7 +894,7 @@ FIELD-SYMBOLS <row> type any.
 
     READ TABLE mt_dfies INTO DATA(dfies) WITH KEY fieldname = mv_f4_fieldname.
 
-    ASSIGN ms_table_row->* to <row>.
+    ASSIGN ms_table_row->* TO <row>.
     ASSIGN COMPONENT dfies-fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<value_struc>).
 
     client->nav_app_call( ZSV_cl_app_004=>factory(
@@ -945,7 +945,7 @@ FIELD-SYMBOLS <row> type any.
 
   METHOD get_layout.
 
-    DATA(class)   = cl_abap_classdescr=>get_class_name( me  ).
+    DATA(class)   = cl_abap_classdescr=>get_class_name( me ).
     DATA(app)     = z2ui5_cl_util_func=>url_param_get( val = 'app' url = client->get( )-s_config-search ).
 
 
@@ -953,10 +953,10 @@ FIELD-SYMBOLS <row> type any.
     GET PARAMETER ID '/SCWM/LGN' FIELD DATA(lgnum).
 
     ms_layout = ZSV_cl_app_009=>init_layout(
-                  table = mv_table
-                  app   = app
-                  class = conv #( class )
-                  lgnum = conv #( lgnum ) ).
+      table = mv_table
+      app   = app
+      class = CONV #( class )
+      lgnum = CONV #( lgnum ) ).
 
   ENDMETHOD.
 
@@ -967,7 +967,7 @@ FIELD-SYMBOLS <row> type any.
     DATA comp        TYPE cl_abap_structdescr=>component_table.
     DATA structdescr TYPE REF TO cl_abap_structdescr.
     DATA lt_fixval   TYPE fixvalues.
-FIELD-SYMBOLS <s_fixval> type any.
+    FIELD-SYMBOLS <s_fixval> TYPE any.
 
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
@@ -981,11 +981,10 @@ FIELD-SYMBOLS <s_fixval> type any.
 
     LOOP AT mt_dfies REFERENCE INTO dfies.
 
-      ASSIGN ms_fixval->* to <s_fixval>.
+      ASSIGN ms_fixval->* TO <s_fixval>.
       ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <s_fixval> TO FIELD-SYMBOL(<fixval>).
 
       CHECK <fixval> IS ASSIGNED.
-
 
       <fixval> = ZSV_cl_object_hlper=>get_fix_values( CONV #( dfies->rollname ) ).
 
