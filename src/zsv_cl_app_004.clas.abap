@@ -199,6 +199,7 @@ ENDMETHOD.
 
     FIELD-SYMBOLS <struc> TYPE ZSV_cl_app_009=>ty_s_layout.
     FIELD-SYMBOLS <row> TYPE any.
+    FIELD-SYMBOLS <table> type any.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
@@ -234,10 +235,12 @@ ENDMETHOD.
                         submit        = client->_event( 'F4_INPUT_DONE' )
                         maxLength     = '3' ).
 
+ASSIGN mt_DATA->* to <table>.
+
     DATA(table) = popup->get_child( )->table(
                    growing    ='true'
                    width      ='auto'
-                   items      = client->_bind( val = mt_DATA->* )
+                   items      = client->_bind( val = <table> )
                    headerText = zcl_text_helper=>get_dd02t( mv_check_tab ) ).
 
     DATA(headder) = table->header_toolbar(

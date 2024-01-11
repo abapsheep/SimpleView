@@ -203,6 +203,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
 
     FIELD-SYMBOLS <line> TYPE ty_s_layout.
+    FIELD-SYMBOLS <layout> type any.
 
     DATA(popup) = Z2UI5_cl_xml_view=>factory_popup( client ).
 
@@ -229,9 +230,10 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
     DO.
 
-      index += 1.
+      index = index + 1.
 
-      ASSIGN COMPONENT index OF STRUCTURE ms_layout->* TO <Line>.
+      ASSIGN ms_layout->* to <layout>.
+      ASSIGN COMPONENT index OF STRUCTURE <layout> TO <Line>.
       IF <line> IS ASSIGNED.
 
         form->Toolbar(
@@ -357,14 +359,22 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
   METHOD factory.
 
+    FIELD-SYMBOLS <i_layout> TYPE any.
+    FIELD-SYMBOLS <layout> TYPE any.
+
+
     result = NEW #( ).
 
-   Create data result->ms_layout like layout->*.
+    ASSIGN layout->* TO <I_layout>.
 
-   result->ms_layout->*       = layout->*.
-   result->mv_open            = open_layout.
-   result->mv_delete          = delete_layout.
-   result->mv_extended_layout = extended_layout.
+    CREATE DATA result->ms_layout LIKE <I_layout>.
+
+    ASSIGN result->ms_layout->* TO <layout>.
+
+    <layout>                   = <I_layout>.
+    result->mv_open            = open_layout.
+    result->mv_delete          = delete_layout.
+    result->mv_extended_layout = extended_layout.
 
   ENDMETHOD.
 

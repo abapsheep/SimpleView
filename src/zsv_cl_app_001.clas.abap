@@ -454,7 +454,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
       ASSIGN ms_layout->* to <layout>.
-      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_layout->* TO <struc>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <layout> TO <struc>.
       CHECK <struc> IS ASSIGNED.
 
       columns->column( visible         = client->_bind( <struc>-visible )
