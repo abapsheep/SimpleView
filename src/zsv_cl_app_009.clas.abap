@@ -8,16 +8,9 @@ PUBLIC SECTION.
   INTERFACES if_serializable_object .
   INTERFACES z2ui5_if_app .
 
- types:
-    begin of fixvalue,
-    low        type domvalue_l,
-    high       type domvalue_h,
-    option     type ddfvoption,
-    ddlanguage type ddlanguage,
-    ddtext     type val_text,
-  end of fixvalue .
-  types:
-    fixvalues type standard table of fixvalue with default key .
+ types: fixvalue type ZSV_CL_OBJECT_HLPER=>fixvalue,
+    fixvalues type standard table of fixvalue with empty key .
+
 
   TYPES: ty_s_layout TYPE ZSV_t005,
          ty_t_layout type STANDARD TABLE OF ty_s_layout with EMPTY KEY.
@@ -42,8 +35,8 @@ PUBLIC SECTION.
 
   DATA mt_t004 TYPE ty_t_t004.
 
-  DATA mv_descr  TYPE char50.
-  DATA mv_layout TYPE slis_vari.
+  DATA mv_descr  TYPE string.
+  DATA mv_layout TYPE string.
   DATA mv_def    TYPE abap_bool.
   DATA mv_usr    TYPE abap_bool.
   DATA mv_lgn    TYPE abap_bool.
@@ -237,9 +230,9 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
       IF <line> IS ASSIGNED.
 
         form->Toolbar(
-                )->Title( text = get_txt( CONV #( <Line>-rollname ) )
+                )->Title( text = get_txt( conv #( <Line>-rollname ) )
                           level = 'H2'
-                )->text(  `- ` && <Line>-rollname ).
+                )->text(  `- ` && <Line>-Fname ).
 
         form->content(  ns = 'form'
                      )->label( text   = get_txt( `ALV_KEEP_FIELDNAME_VISIBLE` )
@@ -457,24 +450,28 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
   METHOD get_fixvalues.
 
-        TRY.
-            " FIXED Values Lesen
-            DATA(type) = cl_abap_typedescr=>describe_by_name( rollname ).
-            DATA(ele) =  CAST cl_abap_elemdescr( type ).
+result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
-            ele->get_ddic_fixed_values(
-              EXPORTING
-                p_langu        = sy-langu
-              RECEIVING
-                p_fixed_values = result
-              EXCEPTIONS
-                not_found      = 1
-                no_ddic_type   = 2
-                OTHERS         = 3
-            ).
 
-          CATCH cx_root.
-        ENDTRY.
+
+*        TRY.
+*            " FIXED Values Lesen
+*            DATA(type) = cl_abap_typedescr=>describe_by_name( rollname ).
+*            DATA(ele) =  CAST cl_abap_elemdescr( type ).
+*
+*            ele->get_ddic_fixed_values(
+*              EXPORTING
+*                p_langu        = sy-langu
+*              RECEIVING
+*                p_fixed_values = result
+*              EXCEPTIONS
+*                not_found      = 1
+*                no_ddic_type   = 2
+*                OTHERS         = 3
+*            ).
+*
+*          CATCH cx_root.
+*        ENDTRY.
 
   ENDMETHOD.
 
@@ -543,14 +540,14 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
     ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE ms_layout->* TO <setting>.
 
     IF mv_layout IS INITIAL.
-      client->message_toast_display( zcl_text_helper=>get_t100(
+      client->message_toast_display( ZSV_CL_TEXT_HELPER=>get_t100(
                                     iv_arbgb = '0K'
                                     iv_msgnr = '535'   ) ).
       RETURN.
     ENDIF.
 
     IF mv_lgn = abap_true.
-      GET PARAMETER ID '/SCWM/LGN' FIELD DATA(lgnum).
+*      GET PARAMETER ID '/SCWM/LGN' FIELD DATA(lgnum).
     ENDIF.
 
     IF mv_usr = abap_true.
@@ -560,33 +557,35 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
     DATA(t004) = VALUE ZSV_t004( layout  = mv_layout
                                         class   = <setting>-class
                                         app     = <setting>-app
-                                        lgnum   = lgnum
+*                                        lgnum   = lgnum
                                         descr   = mv_descr
                                         def     = mv_def
                                         uname   = user
                                         tab     = <setting>-tab ).
 
     " gibt es das alyout schon?
-    SELECT SINGLE layout FROM ZSV_t004 INTO t004-layout
-    WHERE layout = t004-layout
-    AND   tab    = <setting>-tab.
+    SELECT SINGLE layout FROM ZSV_t004
+    WHERE layout = @t004-layout
+    AND   tab    = @<setting>-tab
+    INTO @t004-layout.
 
     IF sy-subrc = 0.
 
 
       " postionen lesen und löschen
-      SELECT * FROM ZSV_t005 INTO TABLE @DATA(del)
+      SELECT * FROM ZSV_t005
       WHERE layout = @t004-layout
-      AND   tab    = @<setting>-tab.
+      AND   tab    = @<setting>-tab
+      INTO TABLE @DATA(del).
 
       IF sy-subrc = 0.
-        DELETE ZSV_t005 FROM TABLE del.
+        DELETE ZSV_t005 FROM TABLE @del.
         COMMIT WORK AND WAIT.
       ENDIF.
 
     ENDIF.
 
-    MODIFY ZSV_t004 FROM t004.
+    MODIFY ZSV_t004 FROM @t004.
 
     IF sy-subrc = 0.
 
@@ -612,13 +611,13 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
       ENDDO.
 
-      MODIFY ZSV_t005 FROM TABLE t_t005.
+      MODIFY ZSV_t005 FROM TABLE @t_t005.
 
       IF sy-subrc = 0.
 
         COMMIT WORK AND WAIT.
 
-        client->message_toast_display( zcl_text_helper=>get_t100(
+        client->message_toast_display( zsv_cl_text_helper=>get_t100(
                                          iv_arbgb = '/SCWM/IT_DEVKIT'
                                          iv_msgnr = '012'   ) ).
       ENDIF.
@@ -714,6 +713,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
                 press = client->_event( 'CLOSE' )
           )->button(
                 text  = get_txt( 'MSSRCF_ACTION' )
+                icon  = 'sap-icon://accept'
                 press = client->_event( 'OPEN_SELECT' )
                 type  = 'Emphasized' ).
 
@@ -725,10 +725,10 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
   METHOD select_layouts.
 
     SELECT  * FROM ZSV_t004
-    INTO CORRESPONDING FIELDS OF TABLE @result
     WHERE class   = @class
     AND   app     = @app
-    and   tab     = @tab.
+    and   tab     = @tab
+    INTO CORRESPONDING FIELDS OF TABLE @result.
 
   ENDMETHOD.
 
@@ -741,18 +741,20 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
     CHECK t004 IS NOT INITIAL.
 
-    SELECT SINGLE * FROM ZSV_t004 INTO @t004
+    SELECT SINGLE * FROM ZSV_t004
     WHERE layout = @t004-layout
-    and   tab    = @t004-tab.
+    and   tab    = @t004-tab
+    INTO @t004.
 
-    SELECT * FROM ZSV_t005 INTO TABLE @DATA(t_t005)
+    SELECT * FROM ZSV_t005
     WHERE layout = @t004-layout
-    and   tab    = @t004-tab.
+    and   tab    = @t004-tab
+    INTO TABLE @DATA(t_t005).
 
     CHECK sy-subrc = 0.
 
-    DELETE  ZSV_t004 FROM t004.
-    DELETE  ZSV_t005 FROM TABLE t_t005.
+    DELETE  ZSV_t004 FROM @t004.
+    DELETE  ZSV_t005 FROM TABLE @t_t005.
 
     IF sy-subrc = 0.
       COMMIT WORK AND WAIT.
@@ -793,9 +795,10 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
     IF default-layout IS NOT INITIAL.
 
-      SELECT * FROM ZSV_t005 INTO TABLE @DATA(t_t005)
+      SELECT * FROM ZSV_t005
       WHERE layout = @default-layout
-      AND   tab    = @default-tab.
+      AND   tab    = @default-tab
+      INTO TABLE @DATA(t_t005).
 
 
       LOOP AT t_dfies REFERENCE INTO DATA(dfies).

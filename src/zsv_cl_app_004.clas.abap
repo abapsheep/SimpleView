@@ -8,6 +8,15 @@ CLASS ZSV_cl_app_004 DEFINITION
     INTERFACES if_serializable_object .
     INTERFACES z2ui5_if_app .
 
+    types char72 type c length 72.
+    TYPES: where_tab TYPE STANDARD TABLE OF char72 WITH EMPTY KEY.
+    TYPES: BEGIN OF where,
+             tablename TYPE string,
+             where_tab TYPE where_tab,
+           END OF where.
+    TYPES: twhere TYPE STANDARD TABLE OF where WITH EMPTY KEY.
+
+
     DATA mt_DATA          type ref to data.
     DATA ms_DATA_row      type ref to data.
     DATA ms_layout        TYPE REF TO data.
@@ -16,8 +25,8 @@ CLASS ZSV_cl_app_004 DEFINITION
     DATA mv_field         TYPE string.
     DATA mv_value         TYPE string.
     DATA mv_return_value  type string.
-    DATA mv_rows      type numc4 VALUE '50'.
-    DATA mt_dfies     type STANDARD TABLE OF dfies.
+    DATA mv_rows      type int4 VALUE '50'.
+    DATA mt_dfies     type ZSV_cl_object_hlper=>ty_t_dfies.
 
        CLASS-METHODS factory
       IMPORTING
@@ -28,6 +37,8 @@ CLASS ZSV_cl_app_004 DEFINITION
         VALUE(result)   TYPE REF TO ZSV_cl_app_004.
 
 PROTECTED SECTION.
+
+
 
   DATA client             TYPE REF TO z2ui5_if_client.
   DATA mv_init            TYPE abap_bool.
@@ -55,11 +66,11 @@ PROTECTED SECTION.
 
   METHODS get_data
     IMPORTING
-      where TYPE rsds_twhere.
+      where TYPE twhere.
 
   METHODS get_where_tab
     RETURNING
-      VALUE(result) TYPE rsds_twhere.
+      VALUE(result) TYPE twhere.
 
   METHODS prefill_inputs.
 
@@ -67,8 +78,13 @@ PROTECTED SECTION.
 
   METHODS get_layout.
 
-PRIVATE SECTION.
     METHODS create_objects.
+
+PRIVATE SECTION.
+
+
+
+
 
 ENDCLASS.
 
@@ -113,29 +129,28 @@ CLASS ZSV_cl_app_004 IMPLEMENTATION.
 
   METHOD get_where_tab.
 
-    DATA t_selopt TYPE rsds_frange_t.
-    FIELD-SYMBOLS <struc> type any.
+
+
+    DATA: t_selopt TYPE where_tab.
+
+    FIELD-SYMBOLS <struc> TYPE any.
 
     " Gehe über alle Comps
     LOOP AT mt_dfies REFERENCE INTO DATA(dfies).
 
       CHECK dfies->keyflag = abap_true OR dfies->fieldname = mv_check_tab_field.
 
-      assign ms_data_row->* to <struc>.
-      ASSIGN COMPONENT dfies->fieldname of STRUCTURE <struc> TO FIELD-SYMBOL(<val>).
+      ASSIGN ms_data_row->* TO <struc>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <struc> TO FIELD-SYMBOL(<val>).
 
       CHECK <val> IS NOT INITIAL.
-      t_selopt = VALUE #( BASE t_selopt ( fieldname = dfies->fieldname selopt_t = VALUE #( ( sign = 'I' option = 'CP' low = `*` && <val> && `*`  high = '' ) ) ) ).
+
+
+      t_selopt = VALUE #( BASE t_selopt ( `( ` && dfies->fieldname && ` LIKE %` && <val> && `% )` ) ).
 
     ENDLOOP.
 
-    DATA(range)  = VALUE rsds_trange( ( tablename = mv_check_tab frange_t = t_selopt ) ).
-
-    CALL FUNCTION 'FREE_SELECTIONS_RANGE_2_WHERE'
-      EXPORTING
-        field_ranges  = range
-      IMPORTING
-        where_clauses = result.
+    DATA(range)  = VALUE twhere( ( tablename = mv_table where_tab = t_selopt ) ).
 
   ENDMETHOD.
 
@@ -181,8 +196,9 @@ ENDMETHOD.
 
         DATA(range) = VALUE #( where[ 1 ]-where_tab OPTIONAL ).
 
-        SELECT * FROM (mv_check_tab) INTO CORRESPONDING FIELDS OF TABLE @<table> UP TO @mv_rows ROWS
-        WHERE (range).
+
+        SELECT * FROM (mv_check_tab)
+        WHERE (range) INTO CORRESPONDING FIELDS OF TABLE @<table> UP TO @mv_rows ROWS.
 
         set_row_id( ).
 
@@ -220,7 +236,7 @@ ENDMETHOD.
       ASSIGN ms_data_row->* TO <row>.
       ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <row> TO FIELD-SYMBOL(<val>).
 
-      simple_form->label( text = get_txt( CONV #( dfies->rollname ) ) ).
+      simple_form->label( text = get_txt( dfies->rollname ) ).
 
       simple_form->input( value         = client->_bind_edit( <val> )
                           showvaluehelp = abap_false
@@ -241,11 +257,11 @@ ASSIGN mt_DATA->* to <table>.
                    growing    ='true'
                    width      ='auto'
                    items      = client->_bind( val = <table> )
-                   headerText = zcl_text_helper=>get_dd02t( mv_check_tab ) ).
+                   headerText = mv_check_tab ).
 
     DATA(headder) = table->header_toolbar(
                  )->overflow_toolbar(
-                 )->Title(   text = zcl_text_helper=>get_dd02t( mv_check_tab )
+                 )->Title( text = mv_check_tab
                  )->toolbar_spacer( ).
 
 
@@ -260,7 +276,7 @@ ASSIGN mt_DATA->* to <table>.
       ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_layout->* TO <struc>.
       CHECK <struc> IS ASSIGNED.
 
-      columns->column( visible = <struc>-visible )->text( get_txt(  CONV #( dfies->rollname ) ) ).
+      columns->column( visible = <struc>-visible )->text( get_txt( dfies->rollname ) )."get_txt(  CONV #( dfies->rollname ) ) ).
 
     ENDLOOP.
 
@@ -461,14 +477,14 @@ FIELD-SYMBOLS <row> type any.
     DATA(class)   = cl_abap_classdescr=>get_class_name( me  ).
     DATA(app)     = z2ui5_cl_util_func=>url_param_get( val = 'app' url = client->get( )-s_config-search ).
 
-    " Lagernumemr ermitteln
-    GET PARAMETER ID '/SCWM/LGN' FIELD DATA(lgnum).
+*    " Lagernumemr ermitteln
+*    "  get paramter id '/SCWM/LGN' FIELD DATA(lgnum).
 
     ms_layout = ZSV_cl_app_009=>init_layout(
                   table = mv_table
                   app   = ''
-                  class = conv #( class )
-                  lgnum = conv #( lgnum ) ).
+                  class = conv #( class ) ).
+*                  lgnum = conv #( lgnum )
 
   ENDMETHOD.
 

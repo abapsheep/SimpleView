@@ -14,36 +14,42 @@
    </DD01V>
    <DD07V_TAB>
     <DD07V>
+     <DOMNAME>ZSV_ALIGN</DOMNAME>
      <VALPOS>0001</VALPOS>
      <DDLANGUAGE>E</DDLANGUAGE>
      <DOMVALUE_L>Begin</DOMVALUE_L>
      <DDTEXT>Locale-specific positioning at the beginning of the line</DDTEXT>
     </DD07V>
     <DD07V>
+     <DOMNAME>ZSV_ALIGN</DOMNAME>
      <VALPOS>0002</VALPOS>
      <DDLANGUAGE>E</DDLANGUAGE>
      <DOMVALUE_L>Center</DOMVALUE_L>
      <DDTEXT>Centered text alignment</DDTEXT>
     </DD07V>
     <DD07V>
+     <DOMNAME>ZSV_ALIGN</DOMNAME>
      <VALPOS>0003</VALPOS>
      <DDLANGUAGE>E</DDLANGUAGE>
      <DOMVALUE_L>End</DOMVALUE_L>
      <DDTEXT>Locale-specific positioning at the end of the line</DDTEXT>
     </DD07V>
     <DD07V>
+     <DOMNAME>ZSV_ALIGN</DOMNAME>
      <VALPOS>0004</VALPOS>
      <DDLANGUAGE>E</DDLANGUAGE>
      <DOMVALUE_L>Initial</DOMVALUE_L>
      <DDTEXT>Sets no text align, so the browser default is used</DDTEXT>
     </DD07V>
     <DD07V>
+     <DOMNAME>ZSV_ALIGN</DOMNAME>
      <VALPOS>0005</VALPOS>
      <DDLANGUAGE>E</DDLANGUAGE>
      <DOMVALUE_L>Left</DOMVALUE_L>
      <DDTEXT>Hard option for left alignment</DDTEXT>
     </DD07V>
     <DD07V>
+     <DOMNAME>ZSV_ALIGN</DOMNAME>
      <VALPOS>0006</VALPOS>
      <DDLANGUAGE>E</DDLANGUAGE>
      <DOMVALUE_L>Right</DOMVALUE_L>

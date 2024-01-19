@@ -25,20 +25,12 @@ CLASS zsv_cl_app_001 DEFINITION
     DATA mt_table_del    TYPE REF TO data .
 
     DATA mv_table        TYPE string .
-    DATA mt_dfies        TYPE STANDARD TABLE OF dfies .
+    DATA mt_dfies        TYPE zsv_cl_object_hlper=>ty_t_dfies."STANDARD TABLE OF dfies .
     DATA mv_activ_row    TYPE string .
     DATA mv_edit         TYPE abap_bool .
 
-    TYPES:
-      BEGIN OF fixvalue,
-        low        TYPE domvalue_l,
-        high       TYPE domvalue_h,
-        option     TYPE ddfvoption,
-        ddlanguage TYPE ddlanguage,
-        ddtext     TYPE val_text,
-      END OF fixvalue.
-    TYPES:
-      fixvalues TYPE STANDARD TABLE OF fixvalue WITH DEFAULT KEY.
+    TYPES: fixvalue type ZSV_CL_OBJECT_HLPER=>fixvalue,
+      fixvalues TYPE STANDARD TABLE OF fixvalue WITH empty KEY.
 
 
   PROTECTED SECTION.
@@ -214,7 +206,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
         IF <del> IS ASSIGNED.
 
-          DELETE (mv_table) FROM TABLE <del_org>.
+          DELETE (mv_table) FROM TABLE @<del_org>.
           IF sy-subrc = 0.
             COMMIT WORK AND WAIT.
             CLEAR: mt_table_del.
@@ -222,7 +214,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
         ENDIF.
 
-        MODIFY (mv_table) FROM TABLE <tab_org>.
+        MODIFY (mv_table) FROM TABLE @<tab_org>.
 
         IF sy-subrc = 0.
           COMMIT WORK AND WAIT.
@@ -311,7 +303,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
         ASSIGN mt_table->* TO <table>.
 
-        SELECT * FROM (mv_table) INTO CORRESPONDING FIELDS OF TABLE <table>.
+        SELECT * FROM (mv_table) INTO CORRESPONDING FIELDS OF TABLE @<table>.
 
       CATCH cx_root.
 
@@ -330,7 +322,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
   METHOD get_dfies.
 
-    mt_dfies    = ZSV_cl_object_hlper=>get_dfies_of_table( mv_table ).
+    mt_dfies    =  ZSV_cl_object_hlper=>get_dfies_of_table( mv_table ) .
 
   ENDMETHOD.
 
@@ -380,12 +372,6 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
     ENDIF.
 
-    SELECT SINGLE  tabname FROM dd02l INTO mv_table
-    WHERE tabname = mv_table.
-    IF sy-subrc NE 0.
-      mv_table = 'USR01'. " FALLBACK
-    ENDIF.
-
   ENDMETHOD.
 
 
@@ -431,13 +417,13 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
       growing    = 'true'
       width      = 'auto'
       items      = client->_bind( val = <table> )
-      headerText = zsv_cl_text_helper=>get_dd02t( mv_table )
+      headerText = mv_table
     ).
 
 
     DATA(headder) =  table->header_toolbar(
                )->overflow_toolbar(
-                 )->Title(   text = zsv_cl_text_helper=>get_dd02t( mv_table )
+                 )->Title(   text =  mv_table
                  )->toolbar_spacer(
                  )->search_field(
                               value  = client->_bind_edit( mv_search_value )
@@ -462,7 +448,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
                        importance      = client->_bind( <struc>-importance )
                        mergeduplicates = client->_bind( <struc>-merge )
                        minscreenwidth  = client->_bind( <struc>-width )
-       )->text( get_txt(  CONV #( dfies->rollname ) ) ).
+       )->text( get_txt( dfies->rollname ) ).
 
     ENDLOOP.
 
@@ -499,7 +485,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
       DATA(view)  = z2ui5_cl_xml_view=>factory( client )."->shell( ).
 
 
-      result = view->page( title          = zsv_cl_text_helper=>get_dd02t( mv_table )
+      result = view->page( title          = mv_table
                            navbuttonpress = client->_event( 'BACK' )
                            shownavbutton  = abap_true
                            class          = 'sapUiContentPadding' ).
@@ -581,7 +567,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
         CONTINUE.
       ENDIF.
 
-      simple_form->label( text = get_txt( CONV #( dfies->rollname ) ) ).
+      simple_form->label( text = get_txt( dfies->rollname  ) ).
 
       ASSIGN ms_fixval->* TO <fixval>.
       ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <fixval> TO FIELD-SYMBOL(<struc>).
@@ -595,7 +581,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
           simple_form->input( value            = client->_bind_edit( <val> )
                               showvaluehelp    = abap_true
                               enabled          = enabled
-                              valuehelprequest = client->_event( val = 'POPUP_F4' t_arg = VALUE #( ( CONV #( dfies->fieldname ) ) ) ) ).
+                              valuehelprequest = client->_event( val = 'POPUP_F4' t_arg = VALUE #( (  dfies->fieldname ) ) ) ).
 
         ELSE.
 
@@ -954,14 +940,14 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
     DATA(app)     = z2ui5_cl_util_func=>url_param_get( val = 'app' url = client->get( )-s_config-search ).
 
 
-    " Lagernumemr ermitteln
-    GET PARAMETER ID '/SCWM/LGN' FIELD DATA(lgnum).
+*    " Lagernumemr ermitteln
+*    GET PARAMETER ID '/SCWM/LGN' FIELD DATA(lgnum).
 
     ms_layout = ZSV_cl_app_009=>init_layout(
       table = mv_table
       app   = app
-      class = CONV #( class )
-      lgnum = CONV #( lgnum ) ).
+      class = CONV #( class ) ).
+*      lgnum = CONV #( lgnum )
 
   ENDMETHOD.
 
