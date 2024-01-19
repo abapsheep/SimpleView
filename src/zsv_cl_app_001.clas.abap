@@ -508,16 +508,16 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
                     )->toolbar_spacer(
                     )->button(
                         icon    = 'sap-icon://add'
-                        text    =  get_txt( 'RSLPO_GUI_ADDPART' )
+                        text    = 'Add'
                         press   = client->_event( 'BUTTON_ADD' )
                         type    = 'Default'
                      )->button(
                         icon    = 'sap-icon://refresh'
-                        text    = get_txt( '/SCMB/LOC_REFRESH' )
+                        text    = 'Refresh'
                         press   = client->_event( 'BUTTON_REFRESH' )
                         type    = 'Default'
                      )->button(
-                        text    = get_txt( '/SCWM/DE_LM_LOGSAVE' )
+                        text    = 'Save'
                         press   = client->_event( 'BUTTON_SAVE' )
                         type    = 'Success' ).
 

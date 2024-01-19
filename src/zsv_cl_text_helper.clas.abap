@@ -161,49 +161,78 @@ CLASS ZSV_CL_TEXT_HELPER IMPLEMENTATION.
 
         CATCH cx_root.
 
-
           TRY.
 
-              DATA(ele) = xco_cp_abap_dictionary=>data_element( iv_name = CONV #( iv_rollname ) ).
+              DATA roll      TYPE c LENGTH 30.
+              DATA content   TYPE REF TO object.
+              DATA r_content TYPE REF TO data.
+              DATA element   TYPE REF TO object.
 
-              DATA(cont) = ele->content(  ).
+              roll = iv_rollname.
 
-              DATA(content) = cont->get( ).
+              CALL METHOD ('XCO_CP_ABAP_DICTIONARY')=>data_element
+                EXPORTING
+                  iv_name         = roll
+                RECEIVING
+                  ro_data_element = element.
+
+              CALL METHOD element->('IF_XCO_AD_DATA_ELEMENT~CONTENT')
+                RECEIVING
+                  ro_content = content.
+
+              CREATE DATA r_content TYPE ('IF_XCO_DTEL_CONTENT=>TS_CONTENT').
+              ASSIGN r_content->* TO FIELD-SYMBOL(<content>) CASTING TYPE ('IF_XCO_DTEL_CONTENT=>TS_CONTENT').
+
+              CALL METHOD content->('IF_XCO_DTEL_CONTENT~GET')
+                RECEIVING
+                  rs_content = <content>.
+
+              ASSIGN COMPONENT 'SHORT_FIELD_LABEL-TEXT' OF STRUCTURE <content> TO FIELD-SYMBOL(<s>).
+              ASSIGN COMPONENT 'MEDIUM_FIELD_LABEL-TEXT' OF STRUCTURE <content> TO FIELD-SYMBOL(<m>).
+              ASSIGN COMPONENT 'LONG_FIELD_LABEL-TEXT' OF STRUCTURE <content> TO FIELD-SYMBOL(<l>).
+              ASSIGN COMPONENT 'HEADING_FIELD_LABEL-TEXT' OF STRUCTURE <content> TO FIELD-SYMBOL(<r>).
+              ASSIGN COMPONENT 'SHORT_DESCRIPTION' OF STRUCTURE <content> TO FIELD-SYMBOL(<d>).
+
+
+*              DATA(ele) = xco_cp_abap_dictionary=>data_element( iv_name = CONV #( iv_rollname ) ).
+*              DATA(cont) = ele->content(  ).
+*              DATA(conte) = cont->get( ).
 
               text-rollname = iv_rollname.
-              text-short_field_label = content-short_field_label-text.
-              text-medium_field_label = content-medium_field_label-text.
-              text-long_field_label = content-long_field_label-text.
-              text-heading_field_label = content-heading_field_label-text.
-              text-short_description = content-short_description.
+              text-short_field_label   = <s>.
+              text-medium_field_label  = <m>.
+              text-long_field_label    = <l>.
+              text-heading_field_label = <r>.
+              text-short_description   = <d>.
 
               APPEND text TO mt_texts.
 
-            CATCH cx_root.
+            CATCH cx_root INTO DATA(root).
+
+              text-rollname = iv_rollname.
+              APPEND text TO mt_texts.
+
           ENDTRY.
 
       ENDTRY.
 
-
-
     ENDIF.
 
-    IF text IS NOT INITIAL.
-      CASE iv_type.
-        WHEN 'S'."Feldbezeichner kurz
-          result = TEXT-short_field_label.
-        WHEN 'M'."Feldbezeichner mittel
-          result = TEXT-medium_field_label.
-        WHEN 'L'."Feldbezeichner lang
-          result = TEXT-long_field_label.
-        WHEN 'R'."Überschrift
-          result = TEXT-heading_field_label.
-        WHEN 'D'."Kurzbeschreibung von Repository-Objekten
-          result = TEXT-short_description.
-        WHEN OTHERS.
-          result = TEXT-short_field_label.
-      ENDCASE.
-    ENDIF.
+
+    CASE iv_type.
+      WHEN 'S'."Feldbezeichner kurz
+        result = TEXT-short_field_label.
+      WHEN 'M'."Feldbezeichner mittel
+        result = TEXT-medium_field_label.
+      WHEN 'L'."Feldbezeichner lang
+        result = TEXT-long_field_label.
+      WHEN 'R'."Überschrift
+        result = TEXT-heading_field_label.
+      WHEN 'D'."Kurzbeschreibung von Repository-Objekten
+        result = TEXT-short_description.
+      WHEN OTHERS.
+        result = TEXT-short_field_label.
+    ENDCASE.
 
     IF result IS INITIAL.
       result = iv_rollname.

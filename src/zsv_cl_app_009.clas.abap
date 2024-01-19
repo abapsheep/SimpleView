@@ -95,7 +95,6 @@ PROTECTED SECTION.
 
   METHODS get_txt
     IMPORTING roll          TYPE string
-              type          TYPE char1 OPTIONAL
     RETURNING VALUE(result) TYPE string.
 
   METHODS get_txt_l
@@ -200,10 +199,10 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
     DATA(popup) = Z2UI5_cl_xml_view=>factory_popup( client ).
 
-    DATA(dialog) = popup->dialog( title         = get_txt( 'SLIS_VARI' )
+    DATA(dialog) = popup->dialog( title         = 'Layout'
                                   afterclose    = client->_event( 'CLOSE' ) ).
 
-    DATA(form) = dialog->simple_form( title           = get_txt( 'RSPLFB_SETTING' )
+    DATA(form) = dialog->simple_form( title           = 'Settings'
                                       editable        = abap_true
                                       labelSpanXL     = `4`
                                       labelSpanL      = `4`
@@ -235,7 +234,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
                 )->text(  `- ` && <Line>-Fname ).
 
         form->content(  ns = 'form'
-                     )->label( text   = get_txt( `ALV_KEEP_FIELDNAME_VISIBLE` )
+                     )->label( text   = 'Visible'
                      )->switch( type  = 'AcceptReject'
                                 state = client->_bind_edit( <Line>-visible ) ).
 
@@ -283,11 +282,11 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
     dialog->footer( )->overflow_toolbar(
           )->toolbar_spacer(
           )->Button(
-                text  = get_txt( 'HRTEM00BACK' )
+                text  = 'Back'
                 icon  = 'sap-icon://nav-back'
                 press = client->_event( 'CLOSE' )
           )->button(
-                text  = get_txt( '/SCWM/DE_LM_LOGSAVE' )
+                text  = 'Save'
                 press = client->_event( 'EDIT_SAVE' )
                 icon  = 'sap-icon://save'
                 type  = 'Emphasized'
@@ -481,11 +480,11 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     DATA(popup) = Z2UI5_cl_xml_view=>factory_popup( client ).
 
-    DATA(dialog) = popup->dialog( title      = get_txt( '/SCWM/DE_LM_LOGSAVE' )
+    DATA(dialog) = popup->dialog( title      = 'Save'
                                   afterclose = client->_event( 'SAVE_CLOSE' ) ).
 
 
-    DATA(form) = dialog->simple_form( title           = get_txt_L( 'SLIS_VARI' )
+    DATA(form) = dialog->simple_form( title           = 'Layout'
                                       editable        = abap_true
                                       labelSpanXL     = `4`
                                       labelSpanL      = `4`
@@ -494,33 +493,33 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
                                       adjustLabelSpan = abap_false
                                       ).
 
-    form->Toolbar( )->Title( text = get_txt( 'SLIS_VARI' ) ).
+    form->Toolbar( )->Title( text = 'Layout' ).
 
     form->content(  ns = 'form'
-                           )->label( get_txt_L( 'SLIS_VARI' )
+                           )->label( 'Layout'
                            )->input( value = client->_bind_edit( mv_layout )
-                           )->label( get_txt_L( 'SLIS_VARBZ' )
+                           )->label( 'Description'
                            )->input( value = client->_bind_edit( mv_descr ) ).
 
     form->Toolbar( )->Title( text = `` ).
 
     form->content(  ns = 'form'
-                           )->label( get_txt_L( 'SLIS_DEF' )
+                           )->label( 'Default Layout'
                            )->switch( type = 'AcceptReject' state = client->_bind_edit( mv_def )
-                           )->label( get_txt_L( 'SLIS_USER' )
+                           )->label( 'User specific'
                            )->switch( type = 'AcceptReject' state = client->_bind_edit( mv_usr )
-                           )->label( get_txt_l( '/SCWM/DE_FLGLGNUM' )
+                           )->label( 'Wharehousenumber specific'
                            )->switch( type = 'AcceptReject' state = client->_bind_edit( mv_lgn )
                            ).
 
     dialog->footer( )->overflow_toolbar(
           )->toolbar_spacer(
           )->Button(
-                text  = get_txt( 'HRTEM00BACK' )
+                text  = 'Back'
                 icon  = 'sap-icon://nav-back'
                 press = client->_event( 'SAVE_CLOSE' )
           )->button(
-                text  = get_txt( '/SCWM/DE_LM_LOGSAVE' )
+                text  = 'Save'
                 press = client->_event( 'SAVE_SAVE' )
                 type  = 'Success'
                 icon  = 'sap-icon://save' ).
@@ -644,15 +643,15 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
-   DATA(dialog) = popup->dialog( title        = get_txt_L( 'SLIS_VARI' )
+   DATA(dialog) = popup->dialog( title = 'Layout'
                   afterclose   = client->_event( 'CLOSE' ) ).
 
     dialog->table(
-                headertext = get_txt_L( 'SLIS_VARI' )
+                headertext = 'Layout'
                 mode = 'SingleSelectLeft'
                 items = client->_bind_edit( mt_t004 )
                 )->columns(
-                    )->column( )->text( get_txt_L( 'SLIS_VARI' ) )->get_parent(
+                    )->column( )->text( 'Layout' )->get_parent(
                     )->column( )->text( get_txt_L( 'ZSV_DESCR' ) )->get_parent(
                     )->column( )->text( get_txt_L( '/SCWM/LGNUM' )
 
@@ -667,11 +666,11 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
     dialog->footer( )->overflow_toolbar(
           )->toolbar_spacer(
           )->Button(
-                text  = get_txt( 'HRTEM00BACK' )
+                text  = 'Back'
                 icon  = 'sap-icon://nav-back'
                 press = client->_event( 'CLOSE' )
           )->button(
-                text  = get_txt( '/SCTM/CUST_DELETE' )
+                text  = 'Delete'
                 press = client->_event( 'DELETE_SELECT' )
                 type  = 'Reject'
                 icon  = 'sap-icon://delete' ).
@@ -685,15 +684,15 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
-   DATA(dialog) = popup->dialog( title        = get_txt_L( 'SLIS_VARI' )
+   DATA(dialog) = popup->dialog( title        = 'Layout'
                   afterclose   = client->_event( 'CLOSE' ) ).
 
     dialog->table(
-                headertext = get_txt_L( 'SLIS_VARI' )
+                headertext = 'Layout'
                 mode = 'SingleSelectLeft'
                 items = client->_bind_edit( mt_t004 )
                 )->columns(
-                    )->column( )->text( get_txt_L( 'SLIS_VARI' ) )->get_parent(
+                    )->column( )->text( 'Layout' )->get_parent(
                     )->column( )->text( get_txt_L( 'ZSV_DESCR' ) )->get_parent(
                     )->column( )->text( get_txt_L( '/SCWM/LGNUM' )
 
@@ -708,11 +707,11 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
     dialog->footer( )->overflow_toolbar(
           )->toolbar_spacer(
           )->Button(
-                text  = get_txt( 'HRTEM00BACK' )
+                text  = 'Back'
                 icon  = 'sap-icon://nav-back'
                 press = client->_event( 'CLOSE' )
           )->button(
-                text  = get_txt( 'MSSRCF_ACTION' )
+                text  = 'Open'
                 icon  = 'sap-icon://accept'
                 press = client->_event( 'OPEN_SELECT' )
                 type  = 'Emphasized' ).
@@ -814,8 +813,8 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
           <struc>-layout     = 'Default'.
           <struc>-halign     = 'Initial'.
           <struc>-importance = 'None'.
-          <struc>-rollname   = <struc>-rollname.
-          <struc>-fname      = <struc>-fname.
+          <struc>-rollname   = dfies->rollname.
+          <struc>-fname      = dfies->fieldname.
           <struc>-tab        = table.
         ENDIF.
 
@@ -824,12 +823,9 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
       ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE result->* TO <setting>.
       CHECK <setting> IS ASSIGNED.
       MOVE-CORRESPONDING default TO <setting>.
-
       RETURN.
 
     ENDIF.
-
-
 
 " Default Layout
 
