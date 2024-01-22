@@ -103,20 +103,27 @@ CLASS ZSV_CL_TEXT_HELPER IMPLEMENTATION.
 
   METHOD get_dd04t.
 
+    DATA roll    TYPE c LENGTH 30.
+
     READ TABLE mt_texts
              WITH KEY rollname   = iv_rollname
              INTO DATA(text).
 
     IF sy-subrc NE 0.
 
+      roll = iv_rollname.
+
       TRY.
           cl_abap_typedescr=>describe_by_name( 'DD04T' ).
 
           DATA r_dd04t TYPE REF TO data.
+
           FIELD-SYMBOLS <any>  TYPE STANDARD TABLE.
 
           DATA(tabletype) = 'DD04T'.
           DATA(fb)        = 'DD_DTEL_GET'.
+
+
 
           CREATE DATA r_dd04t TYPE STANDARD TABLE OF (tabletype) .
           ASSIGN r_dd04t->* TO <any> ."CASTING TYPE (tabletype) .
@@ -125,7 +132,7 @@ CLASS ZSV_CL_TEXT_HELPER IMPLEMENTATION.
           CALL FUNCTION fb
             EXPORTING
               langu         = sy-langu
-              roll_name     = 'MATNR'
+              roll_name     = roll
             TABLES
               dd04t_tab_a   = <any>
             EXCEPTIONS
@@ -163,12 +170,11 @@ CLASS ZSV_CL_TEXT_HELPER IMPLEMENTATION.
 
           TRY.
 
-              DATA roll      TYPE c LENGTH 30.
+
               DATA content   TYPE REF TO object.
               DATA r_content TYPE REF TO data.
               DATA element   TYPE REF TO object.
 
-              roll = iv_rollname.
 
               CALL METHOD ('XCO_CP_ABAP_DICTIONARY')=>data_element
                 EXPORTING

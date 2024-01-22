@@ -143,6 +143,11 @@ CLASS ZSV_cl_object_hlper IMPLEMENTATION.
 
                 MOVE-CORRESPONDING ddict TO result.
 
+                Loop at result ASSIGNING FIELD-SYMBOL(<result>) where rollname is INITIAL.
+                <result>-rollname = <result>-fieldname.
+                ENDLOOP.
+
+
               CATCH cx_root.
             ENDTRY.
 
