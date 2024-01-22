@@ -60,7 +60,7 @@ CLASS zsv_cl_app_001 DEFINITION
     METHODS get_txt
       IMPORTING
                 roll          TYPE string
-                type          TYPE char1 OPTIONAL
+                type          TYPE string OPTIONAL
       RETURNING VALUE(result) TYPE string.
 
     METHODS get_txt_l
@@ -121,7 +121,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
     ZSV_cl_text_helper=>get_dd04t(
       EXPORTING
-        iv_rollname = CONV #( roll )
+        iv_rollname =  roll
       RECEIVING
         result      = result ).
 
@@ -132,7 +132,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
     ZSV_cl_text_helper=>get_dd04t(
       EXPORTING
-        iv_rollname = CONV #( roll )
+        iv_rollname =  roll
         iv_type     = 'L'
       RECEIVING
         result      = result ).
@@ -621,20 +621,21 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
      ).
 
     toolbar->button(
-      text  = get_txt( 'BRF_TERMINATE_PS' )
+      text  = 'Back'
+                icon  = 'sap-icon://nav-back'
       press = client->_event( 'POPUP_CLOSE' )
     ).
 
     IF mv_edit = abap_true.
       toolbar->button(
-        text  = get_txt( 'MLCCS_D_XDELETE' )
+        text  = 'Delete'
         type  = 'Reject'
         icon  = 'sap-icon://delete'
         press = client->_event( val = 'BUTTON_POPUP_DELETE' t_arg = VALUE #( ( mv_activ_row ) ) ) ).
     ENDIF.
 
     toolbar->button(
-      text  = get_txt( 'FB_TEXT_PROC_STATUS_SUCCSS_ALV' )
+      text  = 'Okay'
       press = client->_event( event )
       type  = 'Emphasized'
     ).
@@ -977,7 +978,7 @@ CLASS ZSV_CL_APP_001 IMPLEMENTATION.
 
       CHECK <fixval> IS ASSIGNED.
 
-      <fixval> = ZSV_cl_object_hlper=>get_fix_values( CONV #( dfies->rollname ) ).
+      <fixval> = ZSV_cl_object_hlper=>get_fix_values( dfies->rollname ).
 
     ENDLOOP.
 

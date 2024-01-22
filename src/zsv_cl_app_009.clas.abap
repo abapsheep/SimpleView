@@ -8,12 +8,12 @@ PUBLIC SECTION.
   INTERFACES if_serializable_object .
   INTERFACES z2ui5_if_app .
 
- types: fixvalue type ZSV_CL_OBJECT_HLPER=>fixvalue,
-    fixvalues type standard table of fixvalue with empty key .
+  TYPES: fixvalue  TYPE zsv_cl_object_hlper=>fixvalue,
+         fixvalues TYPE STANDARD TABLE OF fixvalue WITH EMPTY KEY.
 
 
   TYPES: ty_s_layout TYPE ZSV_t005,
-         ty_t_layout type STANDARD TABLE OF ty_s_layout with EMPTY KEY.
+         ty_t_layout TYPE STANDARD TABLE OF ty_s_layout WITH EMPTY KEY.
   TYPES: ty_s_header TYPE ZSV_t004.
 
   TYPES:
@@ -141,7 +141,7 @@ ENDCLASS.
 
 
 
-CLASS ZSV_CL_APP_009 IMPLEMENTATION.
+CLASS zsv_cl_app_009 IMPLEMENTATION.
 
 
   METHOD z2ui5_if_app~main.
@@ -195,7 +195,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
 
     FIELD-SYMBOLS <line> TYPE ty_s_layout.
-    FIELD-SYMBOLS <layout> type any.
+    FIELD-SYMBOLS <layout> TYPE any.
 
     DATA(popup) = Z2UI5_cl_xml_view=>factory_popup( client ).
 
@@ -224,12 +224,12 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
       index = index + 1.
 
-      ASSIGN ms_layout->* to <layout>.
+      ASSIGN ms_layout->* TO <layout>.
       ASSIGN COMPONENT index OF STRUCTURE <layout> TO <Line>.
       IF <line> IS ASSIGNED.
 
         form->Toolbar(
-                )->Title( text = get_txt( conv #( <Line>-rollname ) )
+                )->Title( text = get_txt( CONV #( <Line>-rollname ) )
                           level = 'H2'
                 )->text(  `- ` && <Line>-Fname ).
 
@@ -311,7 +311,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
         client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
-     WHEN 'EDIT_SAVE'.
+      WHEN 'EDIT_SAVE'.
 
         render_SAVE( ).
 
@@ -375,7 +375,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
     ZSV_cl_text_helper=>get_dd04t(
       EXPORTING
-        iv_rollname = CONV #( roll )
+        iv_rollname = roll
       RECEIVING
         result      = result ).
 
@@ -386,7 +386,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
     ZSV_cl_text_helper=>get_dd04t(
       EXPORTING
-        iv_rollname = CONV #( roll )
+        iv_rollname =  roll
         iv_type     = 'L'
       RECEIVING
         result      = result ).
@@ -401,11 +401,11 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
     DATA comp        TYPE cl_abap_structdescr=>component_table.
     DATA structdescr TYPE REF TO cl_abap_structdescr.
 
-    FIELD-SYMBOLS <struc> type ty_s_layout.
+    FIELD-SYMBOLS <struc> TYPE ty_s_layout.
 
 
-     comp =  VALUE cl_abap_structdescr=>component_table( BASE comp ( name = ZSV_CL_APP_009=>layout_headder
-                                                              type = CAST #( cl_abap_datadescr=>describe_by_data( ls_setting ) ) ) ).
+    comp =  VALUE cl_abap_structdescr=>component_table( BASE comp ( name = zsv_cl_app_009=>layout_headder
+                                                             type = CAST #( cl_abap_datadescr=>describe_by_data( ls_setting ) ) ) ).
 
 
 
@@ -449,28 +449,7 @@ CLASS ZSV_CL_APP_009 IMPLEMENTATION.
 
   METHOD get_fixvalues.
 
-result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
-
-
-
-*        TRY.
-*            " FIXED Values Lesen
-*            DATA(type) = cl_abap_typedescr=>describe_by_name( rollname ).
-*            DATA(ele) =  CAST cl_abap_elemdescr( type ).
-*
-*            ele->get_ddic_fixed_values(
-*              EXPORTING
-*                p_langu        = sy-langu
-*              RECEIVING
-*                p_fixed_values = result
-*              EXCEPTIONS
-*                not_found      = 1
-*                no_ddic_type   = 2
-*                OTHERS         = 3
-*            ).
-*
-*          CATCH cx_root.
-*        ENDTRY.
+    result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
   ENDMETHOD.
 
@@ -535,11 +514,13 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
     DATA t_t005 TYPE STANDARD TABLE OF ty_s_layout.
     FIELD-SYMBOLS <line> TYPE ty_s_layout.
     FIELD-SYMBOLS <setting> TYPE ZSV_cl_app_009=>ty_s_header.
+    FIELD-SYMBOLS <layout> TYPE any.
 
-    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE ms_layout->* TO <setting>.
+    ASSIGN ms_layout->* TO <layout>.
+    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE <layout> TO <setting>.
 
     IF mv_layout IS INITIAL.
-      client->message_toast_display( ZSV_CL_TEXT_HELPER=>get_t100(
+      client->message_toast_display( zsv_cl_text_helper=>get_t100(
                                     iv_arbgb = '0K'
                                     iv_msgnr = '535'   ) ).
       RETURN.
@@ -594,7 +575,7 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
         index += 1.
 
-        ASSIGN COMPONENT index OF STRUCTURE ms_layout->* TO <line>.
+        ASSIGN COMPONENT index OF STRUCTURE <layout> TO <line>.
         IF <line> IS ASSIGNED.
 
           CLEAR: t005.
@@ -643,8 +624,8 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
-   DATA(dialog) = popup->dialog( title = 'Layout'
-                  afterclose   = client->_event( 'CLOSE' ) ).
+    DATA(dialog) = popup->dialog( title = 'Layout'
+                   afterclose   = client->_event( 'CLOSE' ) ).
 
     dialog->table(
                 headertext = 'Layout'
@@ -684,8 +665,8 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
-   DATA(dialog) = popup->dialog( title        = 'Layout'
-                  afterclose   = client->_event( 'CLOSE' ) ).
+    DATA(dialog) = popup->dialog( title        = 'Layout'
+                   afterclose   = client->_event( 'CLOSE' ) ).
 
     dialog->table(
                 headertext = 'Layout'
@@ -726,7 +707,7 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
     SELECT  * FROM ZSV_t004
     WHERE class   = @class
     AND   app     = @app
-    and   tab     = @tab
+    AND   tab     = @tab
     INTO CORRESPONDING FIELDS OF TABLE @result.
 
   ENDMETHOD.
@@ -742,12 +723,12 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     SELECT SINGLE * FROM ZSV_t004
     WHERE layout = @t004-layout
-    and   tab    = @t004-tab
+    AND   tab    = @t004-tab
     INTO @t004.
 
     SELECT * FROM ZSV_t005
     WHERE layout = @t004-layout
-    and   tab    = @t004-tab
+    AND   tab    = @t004-tab
     INTO TABLE @DATA(t_t005).
 
     CHECK sy-subrc = 0.
@@ -827,7 +808,7 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     ENDIF.
 
-" Default Layout
+    " Default Layout
 
     DATA(index) = 0.
 
@@ -874,13 +855,13 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
 
     ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE result->* TO <setting>.
 
-    <setting>-LAYOUT = LAYOUt.
-    <setting>-DESCR  = DESCR.
-    <setting>-CLASS  = CLASS.
-    <setting>-APP    = APP.
-    <setting>-LGNUM  = LGNUM.
-    <setting>-DEF    = DEF.
-    <setting>-UNAME  = UNAME.
+    <setting>-layout = LAYOUt.
+    <setting>-descr  = descr.
+    <setting>-class  = class.
+    <setting>-app    = app.
+    <setting>-lgnum  = lgnum.
+    <setting>-def    = def.
+    <setting>-uname  = uname.
     <setting>-tab    = tab.
 
   ENDMETHOD.
@@ -916,8 +897,8 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
     mv_descr  = <setting>-descr.
     mv_def    = <setting>-def.
 
-    mv_lgn    = cond #( when <setting>-lgnum is not INITIAL then abap_true ).
-    mv_usr    = cond #( when <setting>-uname is not INITIAL then abap_true ).
+    mv_lgn    = COND #( WHEN <setting>-lgnum IS NOT INITIAL THEN abap_true ).
+    mv_usr    = COND #( WHEN <setting>-uname IS NOT INITIAL THEN abap_true ).
 
   ENDMETHOD.
 
@@ -929,19 +910,19 @@ result = ZSV_cl_object_hlper=>get_fix_values( rollname ).
     CASE result->get( )-event.
 
       WHEN 'LAYOUT_OPEN'.
-   client->view_destroy( ).
+        client->view_destroy( ).
         result->nav_app_call( ZSV_cl_app_009=>factory( layout      = layout
                                                               open_layout = abap_true   ) ).
 
       WHEN 'LAYOUT_EDIT'.
-   client->view_destroy( ).
+        client->view_destroy( ).
         result->nav_app_call( ZSV_cl_app_009=>factory( layout = layout
                                                               extended_layout = abap_true
                                                                ) ).
 
 
       WHEN 'LAYOUT_DELETE'.
-   client->view_destroy( ).
+        client->view_destroy( ).
         result->nav_app_call( ZSV_cl_app_009=>factory( layout = layout
                                                               delete_layout = abap_true ) ).
 

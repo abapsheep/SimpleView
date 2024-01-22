@@ -88,8 +88,11 @@ CLASS ZSV_cl_object_hlper IMPLEMENTATION.
     DATA r_content   TYPE REF TO data.
     DATA r_names     TYPE REF TO data.
 
-    FIELD-SYMBOLS <any>  TYPE any.
-    FIELD-SYMBOLS <name> TYPE any.
+    FIELD-SYMBOLS <any>   TYPE any.
+    FIELD-SYMBOLS <name>  TYPE any.
+    FIELD-SYMBOLS <fiel>  type ref to object.
+    FIELD-SYMBOLS <names> type STANDARD TABLE.
+
 
 
     " convert to correct type,
@@ -113,7 +116,7 @@ CLASS ZSV_cl_object_hlper IMPLEMENTATION.
         fields = <any>.
 
         CREATE DATA r_names TYPE ('SXCO_T_AD_FIELD_NAMES').
-        ASSIGN r_names->* TO FIELD-SYMBOL(<Names>) CASTING TYPE ('SXCO_T_AD_FIELD_NAMES').
+        ASSIGN r_names->* TO <Names>.
 
         CALL METHOD fields->('IF_XCO_DBT_FIELDS~GET_NAMES')
           RECEIVING
@@ -132,9 +135,11 @@ CLASS ZSV_cl_object_hlper IMPLEMENTATION.
           CALL METHOD db->(`IF_XCO_DATABASE_TABLE~FIELD`)
             PARAMETER-TABLE t_param.
 
-          fiel = t_param[ name = 'RO_FIELD' ]-value->*.
+           read table t_param ASSIGNING FIELD-SYMBOL(<line>) with key name = 'RO_FIELD'.
+           ASSIGN <line>-value->* to <fiel>.
+*          fiel = t_param[ name = 'RO_FIELD' ]-value->*.
 
-          CALL METHOD fiel->('IF_XCO_DBT_FIELD~CONTENT')
+          CALL METHOD <fiel>->('IF_XCO_DBT_FIELD~CONTENT')
             RECEIVING
               ro_content = content.
 
@@ -282,6 +287,8 @@ CLASS ZSV_cl_object_hlper IMPLEMENTATION.
 
   METHOD get_relative_name_of_table.
 
+FIELD-SYMBOLS <table> type any.
+
     TRY.
         DATA(typedesc) = cl_abap_typedescr=>describe_by_data( table ).
 
@@ -295,7 +302,8 @@ CLASS ZSV_cl_object_hlper IMPLEMENTATION.
 
           WHEN typedesc->kind_ref.
 
-            result = get_relative_name_of_table( table->* ).
+            ASSIGN table->* to <table>.
+            result = get_relative_name_of_table( <table> ).
 
         ENDCASE.
       CATCH cx_root.

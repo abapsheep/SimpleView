@@ -57,7 +57,7 @@ PROTECTED SECTION.
 
   METHODS get_txt
     IMPORTING roll          TYPE string
-              type          TYPE char1 OPTIONAL
+              type          TYPE string OPTIONAL
     RETURNING VALUE(result) TYPE string.
 
   METHODS get_txt_l
@@ -216,6 +216,7 @@ ENDMETHOD.
     FIELD-SYMBOLS <struc> TYPE ZSV_cl_app_009=>ty_s_layout.
     FIELD-SYMBOLS <row> TYPE any.
     FIELD-SYMBOLS <table> type any.
+    FIELD-SYMBOLS <layout> type any.
 
     DATA(popup) = z2ui5_cl_xml_view=>factory_popup( client ).
 
@@ -254,8 +255,8 @@ ENDMETHOD.
 ASSIGN mt_DATA->* to <table>.
 
     DATA(table) = popup->get_child( )->table(
-                   growing    ='true'
-                   width      ='auto'
+                   growing    = 'true'
+                   width      = 'auto'
                    items      = client->_bind( val = <table> )
                    headerText = mv_check_tab ).
 
@@ -273,7 +274,7 @@ ASSIGN mt_DATA->* to <table>.
 
     LOOP AT mt_dfies REFERENCE INTO dfies.
 
-      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE ms_layout->* TO <struc>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <layout> TO <struc>.
       CHECK <struc> IS ASSIGNED.
 
       columns->column( visible = <struc>-visible )->text( get_txt( dfies->rollname ) )."get_txt(  CONV #( dfies->rollname ) ) ).
@@ -283,7 +284,7 @@ ASSIGN mt_DATA->* to <table>.
 
     DATA(cells) = columns->get_parent( )->items(
                                        )->column_list_item( vAlign = 'Middle'
-                                                            type   ='Navigation'
+                                                            type   = 'Navigation'
                                                             press  = client->_event( val   = 'F4_ROW_SELECT'
                                                                                      t_arg = VALUE #( ( `${ROW_ID}`  ) ) )
                                        )->cells( ).
@@ -388,7 +389,7 @@ ASSIGN mt_DATA->* to <table>.
 
     ZSV_cl_text_helper=>get_dd04t(
       EXPORTING
-        iv_rollname = CONV #( roll )
+        iv_rollname =   roll
       RECEIVING
         result      = result ).
 
@@ -399,7 +400,7 @@ ASSIGN mt_DATA->* to <table>.
 
     ZSV_cl_text_helper=>get_dd04t(
       EXPORTING
-        iv_rollname = CONV #( roll )
+        iv_rollname =  roll
         iv_type     = 'L'
       RECEIVING
         result      = result ).
@@ -415,7 +416,7 @@ ASSIGN mt_DATA->* to <table>.
 
     CHECK  dfies->checktable IS NOT INITIAL.
 
-    mt_dfies   = ZSV_cl_object_hlper=>get_dfies_of_table( CONV #( dfies->checktable ) ).
+    mt_dfies   = ZSV_cl_object_hlper=>get_dfies_of_table(  dfies->checktable  ).
 *
     " ZUORDNUNG --- ggf ist das nicht zu 100% sicher ... :(
     mv_check_tab_field = VALUE #( mt_dfies[ rollname = dfies->rollname ]-fieldname ).
