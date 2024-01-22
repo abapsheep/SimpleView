@@ -573,7 +573,7 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
 
       DO.
 
-        index += 1.
+        index = index + 1.
 
         ASSIGN COMPONENT index OF STRUCTURE <layout> TO <line>.
         IF <line> IS ASSIGNED.
@@ -747,6 +747,7 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
 
     FIELD-SYMBOLS <struc> TYPE ty_s_layout.
     FIELD-SYMBOLS <setting> TYPE ty_s_header.
+    FIELD-SYMBOLS <result> type any.
 
     result = create_layout( table ).
 
@@ -773,6 +774,8 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
 
     DATA(t_dfies) = ZSV_cl_object_hlper=>get_dfies_of_table( table ).
 
+    ASSIGN result->* to <result>.
+
     IF default-layout IS NOT INITIAL.
 
       SELECT * FROM ZSV_t005
@@ -783,7 +786,7 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
 
       LOOP AT t_dfies REFERENCE INTO DATA(dfies).
 
-        ASSIGN COMPONENT dfies->fieldname OF STRUCTURE result->* TO <struc>.
+        ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <result> TO <struc>.
         CHECK sy-subrc = 0.
 
         READ TABLE t_t005 REFERENCE INTO DATA(t005) WITH KEY fname = dfies->fieldname.
@@ -801,7 +804,7 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
 
       ENDLOOP.
 
-      ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE result->* TO <setting>.
+      ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE <result> TO <setting>.
       CHECK <setting> IS ASSIGNED.
       MOVE-CORRESPONDING default TO <setting>.
       RETURN.
@@ -814,9 +817,9 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
 
     LOOP AT t_dfies REFERENCE INTO dfies.
 
-      index += 1.
+      index = index + 1.
 
-      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE result->* TO <struc>.
+      ASSIGN COMPONENT dfies->fieldname OF STRUCTURE <result> TO <struc>.
 
       CHECK <struc> IS ASSIGNED.
 
@@ -837,7 +840,7 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
 
     ENDLOOP.
 
-    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE result->* TO <setting>.
+    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE <result> TO <setting>.
     CHECK <setting> IS ASSIGNED.
     <setting>-layout = 'Default'.
     <setting>-descr  = 'System generated Layout'.
@@ -852,8 +855,10 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
   METHOD set_layout_Settings.
 
     FIELD-SYMBOLS <setting> TYPE ZSV_cl_app_009=>ty_s_header.
+    FIELD-SYMBOLS <result> type any.
 
-    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE result->* TO <setting>.
+    ASSIGN result->* to <result>.
+    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE <result> TO <setting>.
 
     <setting>-layout = LAYOUt.
     <setting>-descr  = descr.
@@ -870,8 +875,10 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
   METHOD get_layouts.
 
     FIELD-SYMBOLS <setting> TYPE ZSV_cl_app_009=>ty_s_header.
+    FIELD-SYMBOLS <layout> TYPE any.
 
-    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE ms_layout->* TO <setting>.
+    ASSIGN ms_layout->* TO <layout>.
+    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE <layout> TO <setting>.
 
     mt_t004 = select_layouts(
       app   = CONV #( <setting>-app )
@@ -890,8 +897,10 @@ CLASS zsv_cl_app_009 IMPLEMENTATION.
   METHOD init_edit.
 
     FIELD-SYMBOLS <setting> TYPE ZSV_cl_app_009=>ty_s_header.
+    FIELD-SYMBOLS <layout> TYPE any.
 
-    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE ms_layout->* TO <setting>.
+    ASSIGN ms_layout->* TO <layout>.
+    ASSIGN COMPONENT ZSV_cl_app_009=>layout_headder OF STRUCTURE <layout> TO <setting>.
 
     mv_layout = <setting>-layout.
     mv_descr  = <setting>-descr.
