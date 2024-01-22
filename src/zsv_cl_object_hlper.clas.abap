@@ -90,173 +90,153 @@ CLASS ZSV_cl_object_hlper IMPLEMENTATION.
 
     FIELD-SYMBOLS <any>   TYPE any.
     FIELD-SYMBOLS <name>  TYPE any.
-    FIELD-SYMBOLS <fiel>  type ref to object.
-    FIELD-SYMBOLS <names> type STANDARD TABLE.
+    FIELD-SYMBOLS <fiel>  TYPE REF TO object.
+    FIELD-SYMBOLS <names> TYPE STANDARD TABLE.
 
 
 
     " convert to correct type,
     tabname = table.
 
-    TRY.
 
-        CALL METHOD ('XCO_CP_ABAP_DICTIONARY')=>database_table
-          EXPORTING
-            iv_name           = tabname
-          RECEIVING
-            ro_database_table = db.
-
-        ASSIGN db->('IF_XCO_DATABASE_TABLE~FIELDS->IF_XCO_DBT_FIELDS_FACTORY~ALL') TO <any>.
-
-        IF sy-subrc  <> 0.
-          " fallback to RTTI, KEY field does not exist in S/4 2020
-          RAISE EXCEPTION TYPE cx_sy_dyn_call_illegal_class.
-        ENDIF.
-
-        fields = <any>.
-
-        CREATE DATA r_names TYPE ('SXCO_T_AD_FIELD_NAMES').
-        ASSIGN r_names->* TO <Names>.
-
-        CALL METHOD fields->('IF_XCO_DBT_FIELDS~GET_NAMES')
-          RECEIVING
-            rt_names = <Names>.
-
-        LOOP AT <Names> ASSIGNING <name>.
-
-          CLEAR: t_param.
-
-          " Befüllung der Tabelle
-          INSERT VALUE #( name = 'IV_NAME' kind = cl_abap_objectdescr=>exporting value = REF #( <name> ) ) INTO TABLE t_param.
-          INSERT VALUE #( name = 'RO_FIELD' kind = cl_abap_objectdescr=>receiving value = REF #( field ) ) INTO TABLE t_param.
-
-          " Dynamischer Aufruf
-
-          CALL METHOD db->(`IF_XCO_DATABASE_TABLE~FIELD`)
-            PARAMETER-TABLE t_param.
-
-           read table t_param ASSIGNING FIELD-SYMBOL(<line>) with key name = 'RO_FIELD'.
-           ASSIGN <line>-value->* to <fiel>.
-*          fiel = t_param[ name = 'RO_FIELD' ]-value->*.
-
-          CALL METHOD <fiel>->('IF_XCO_DBT_FIELD~CONTENT')
-            RECEIVING
-              ro_content = content.
-
-          CREATE DATA r_content TYPE ('IF_XCO_DBT_FIELD_CONTENT=>TS_CONTENT').
-          ASSIGN r_content->* TO FIELD-SYMBOL(<Content>) CASTING TYPE ('IF_XCO_DBT_FIELD_CONTENT=>TS_CONTENT').
-
-          CALL METHOD content->('IF_XCO_DBT_FIELD_CONTENT~GET')
-            RECEIVING
-              rs_content = <Content>.
-
-          ASSIGN COMPONENT 'KEY_INDICATOR'     OF STRUCTURE <content> TO FIELD-SYMBOL(<key>).
-          ASSIGN COMPONENT 'SHORT_DESCRIPTION' OF STRUCTURE <content> TO FIELD-SYMBOL(<text>).
-          ASSIGN COMPONENT 'TYPE'              OF STRUCTURE <content> TO FIELD-SYMBOL(<type>).
-
-          CHECK <key> IS ASSIGNED AND <text> IS ASSIGNED AND <type> IS ASSIGNED.
-
-          type = <type>.
-
-          " Dict type
-          CALL METHOD type->('IF_XCO_DBT_FIELD_TYPE~GET_DATA_ELEMENT')
-            RECEIVING
-              ro_data_element = element.
-
-
-           IF <text> IS INITIAL.
-              <text> = <name>.
-            ENDIF.
-
-          ASSIGN element->('IF_XCO_AD_OBJECT~NAME') TO FIELD-SYMBOL(<rname>).
-
-          IF sy-subrc = 0.
-            result = VALUE #(  BASE result ( fieldname = <name> keyflag = <key> tabname = tabname scrtext_s = <text> rollname = <rname> ) ).
-          ELSE.
-            result = VALUE #(  BASE result ( fieldname = <name> keyflag = <key> tabname = tabname scrtext_s = <text> rollname = <name> ) ).
-          ENDIF.
-
-          UNASSIGN <Content>.
-          UNASSIGN <key>.
-          UNASSIGN <Text>.
-          UNASSIGN <type>.
-          UNASSIGN <rname>.
-
-        ENDLOOP.
 
 *        DATA(a) = xco_cp_abap_dictionary=>database_table( iv_name = tabname ).
-*
 *        a->field(
 *          EXPORTING
 *            iv_name  = 'LAYOUT'
 *          RECEIVING
-*            ro_field = DATA(b1)
-*        ).
-*
-*
+*            ro_field = DATA(b1)   ).
 *        b1->content(
 *          RECEIVING
-*            ro_content    = DATA(c1)
-*        ).
-*
+*            ro_content    = DATA(c1) ).
 *        c1->get(
 *          RECEIVING
-*            rs_content = DATA(d1)
-*        ).
-*
-*
+*            rs_content = DATA(d1) ).
 *        DATA(foreingkey) = b1->foreign_key.
 *        DATA(searchhelp) = b1->search_help.
-*
 *        foreingkey->content(
 *          RECEIVING
 *            ro_content    = DATA(c2) ).
-*
 *        TRY.
-*
 *            c2->get(
 *              RECEIVING
 *                rs_content = DATA(d2)
 *            ).
 *          CATCH cx_root.
 *        ENDTRY.
-*
-*
-*
 *        searchhelp->content(
 *          RECEIVING
 *            ro_content    = DATA(c3) ).
-*
-*
 *        DATA(v1) = d1-type->get_built_in_type( ).
-*
 *        DATA(v2) = d1-type->get_data_element( ).
-
 *DATA(name) = v2->if_xco_ad_object~name.
 
-      CATCH cx_sy_dyn_call_illegal_class.
+
 
         TRY.
+            cl_abap_typedescr=>describe_by_name( 'T100' ).
 
-            structdescr ?= cl_abap_structdescr=>describe_by_name( tabname ).
+            TRY.
+                structdescr ?= cl_abap_structdescr=>describe_by_name( tabname ).
 
-            DATA(ddict) =  structdescr->get_ddic_field_list(  ).
+                DATA(ddict) =  structdescr->get_ddic_field_list(  ).
 
-            MOVE-CORRESPONDING ddict TO result.
+                MOVE-CORRESPONDING ddict TO result.
 
-*            Loop at result ASSIGNING FIELD-SYMBOL(<line>).
-*
-*              <line>-scrtext_s = ZSV_CL_TEXT_HELPER=>get_dd04t( <line>-rollname ).
-*
-*            ENDLOOP.
-
+              CATCH cx_root.
+            ENDTRY.
 
           CATCH cx_root.
+
+            CALL METHOD ('XCO_CP_ABAP_DICTIONARY')=>database_table
+              EXPORTING
+                iv_name           = tabname
+              RECEIVING
+                ro_database_table = db.
+
+            ASSIGN db->('IF_XCO_DATABASE_TABLE~FIELDS->IF_XCO_DBT_FIELDS_FACTORY~ALL') TO <any>.
+
+            IF sy-subrc  <> 0.
+              " fallback to RTTI, KEY field does not exist in S/4 2020
+              RAISE EXCEPTION TYPE cx_sy_dyn_call_illegal_class.
+            ENDIF.
+
+            fields = <any>.
+
+            CREATE DATA r_names TYPE ('SXCO_T_AD_FIELD_NAMES').
+            ASSIGN r_names->* TO <Names>.
+
+            CALL METHOD fields->('IF_XCO_DBT_FIELDS~GET_NAMES')
+              RECEIVING
+                rt_names = <Names>.
+
+            LOOP AT <Names> ASSIGNING <name>.
+
+              CLEAR: t_param.
+
+              " Befüllung der Tabelle
+              INSERT VALUE #( name = 'IV_NAME' kind = cl_abap_objectdescr=>exporting value = REF #( <name> ) ) INTO TABLE t_param.
+              INSERT VALUE #( name = 'RO_FIELD' kind = cl_abap_objectdescr=>receiving value = REF #( field ) ) INTO TABLE t_param.
+
+              " Dynamischer Aufruf
+
+              CALL METHOD db->(`IF_XCO_DATABASE_TABLE~FIELD`)
+                PARAMETER-TABLE t_param.
+
+              READ TABLE t_param ASSIGNING FIELD-SYMBOL(<line>) WITH KEY name = 'RO_FIELD'.
+              ASSIGN <line>-value->* TO <fiel>.
+*          fiel = t_param[ name = 'RO_FIELD' ]-value->*.
+
+              CALL METHOD <fiel>->('IF_XCO_DBT_FIELD~CONTENT')
+                RECEIVING
+                  ro_content = content.
+
+              CREATE DATA r_content TYPE ('IF_XCO_DBT_FIELD_CONTENT=>TS_CONTENT').
+              ASSIGN r_content->* TO FIELD-SYMBOL(<Content>) CASTING TYPE ('IF_XCO_DBT_FIELD_CONTENT=>TS_CONTENT').
+
+              CALL METHOD content->('IF_XCO_DBT_FIELD_CONTENT~GET')
+                RECEIVING
+                  rs_content = <Content>.
+
+              ASSIGN COMPONENT 'KEY_INDICATOR'     OF STRUCTURE <content> TO FIELD-SYMBOL(<key>).
+              ASSIGN COMPONENT 'SHORT_DESCRIPTION' OF STRUCTURE <content> TO FIELD-SYMBOL(<text>).
+              ASSIGN COMPONENT 'TYPE'              OF STRUCTURE <content> TO FIELD-SYMBOL(<type>).
+
+              CHECK <key> IS ASSIGNED AND <text> IS ASSIGNED AND <type> IS ASSIGNED.
+
+              type = <type>.
+
+              " Dict type
+              CALL METHOD type->('IF_XCO_DBT_FIELD_TYPE~GET_DATA_ELEMENT')
+                RECEIVING
+                  ro_data_element = element.
+
+
+              IF <text> IS INITIAL.
+                <text> = <name>.
+              ENDIF.
+
+              ASSIGN element->('IF_XCO_AD_OBJECT~NAME') TO FIELD-SYMBOL(<rname>).
+
+              IF sy-subrc = 0.
+                result = VALUE #(  BASE result ( fieldname = <name> keyflag = <key> tabname = tabname scrtext_s = <text> rollname = <rname> ) ).
+              ELSE.
+                result = VALUE #(  BASE result ( fieldname = <name> keyflag = <key> tabname = tabname scrtext_s = <text> rollname = <name> ) ).
+              ENDIF.
+
+              UNASSIGN <Content>.
+              UNASSIGN <key>.
+              UNASSIGN <Text>.
+              UNASSIGN <type>.
+              UNASSIGN <rname>.
+
+            ENDLOOP.
+
+
         ENDTRY.
 
-    ENDTRY.
 
-  ENDMETHOD.
+      ENDMETHOD.
 
   METHOD get_comp_of_table.
 
