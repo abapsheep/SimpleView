@@ -1,2 +1,2 @@
-# SimpleView
-Simple SE16 like View for Cloud
+# SM30  
+Simple SM30 like View for Cloud
